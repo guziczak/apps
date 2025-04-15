@@ -847,14 +847,14 @@ tu jest nazwa zadania"'></textarea>
                 document.getElementById('raw-input').value = textParam;
                 
                 // Try to parse the text automatically
-                const success = parseRawText();
-                
-                // If parsing was successful, scroll to the bottom after a short delay
-                // to ensure everything has rendered
-                if (success) {
-                    setTimeout(scrollToBottom, 300);
-                }
+                parseRawText();
+            } else {
+                // If no parameter is provided, focus on the text input field
+                document.getElementById('raw-input').focus();
             }
+            
+            // Always scroll to the bottom after a short delay to ensure everything has rendered
+            setTimeout(scrollToBottom, 300);
         });
     </script>
 </body>
