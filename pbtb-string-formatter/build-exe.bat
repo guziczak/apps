@@ -61,13 +61,27 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [OK] Kompilacja zakonczona pomyslnie!
-echo Plik EXE znajduje sie w folderze 'dist'.
-echo.
 
-:: Otwórz folder z plikiem EXE
-if exist dist (
-    echo Otwieranie folderu z plikiem EXE...
-    start "" "dist"
+:: Przenoszenie pliku EXE i czyszczenie
+echo Przenoszenie pliku EXE i czyszczenie...
+
+if exist dist\Base64Encoder.exe (
+    :: Przenieś plik EXE z folderu dist do katalogu nadrzędnego
+    copy dist\Base64Encoder.exe Base64Encoder.exe > nul
+
+    :: Usuń folder dist
+    rmdir /s /q dist
+
+    :: Usuń folder build
+    if exist build rmdir /s /q build
+
+    :: Usuń plik spec
+    if exist Base64Encoder.spec del Base64Encoder.spec
+
+    echo [OK] Plik EXE zostal przeniesiony do biezacego katalogu.
+    echo [OK] Tymczasowe pliki zostaly usuniete.
+) else (
+    echo [BLAD] Nie znaleziono pliku EXE w folderze dist.
 )
 
 echo.
