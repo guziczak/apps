@@ -267,13 +267,6 @@ tu jest nazwa zadania"'></textarea>
             <label>Sformatowany wynik:</label>
             <div class="result" id="result-text"></div>
             <button class="copy-button" id="copy-button">Kopiuj do schowka</button>
-            <button class="copy-button" id="generate-url-button" style="background-color: #f39c12; margin-top: 10px;">Generuj URL z tekstem</button>
-            <div id="generated-url" style="margin-top: 10px; display: none;">
-                <input type="text" id="url-input" style="font-size: 12px;" readonly>
-                <div style="font-size: 12px; margin-top: 5px; color: #7f8c8d;">
-                    Ten URL zawiera zakodowany tekst, który można bezpiecznie udostępnić lub zapisać.
-                </div>
-            </div>
         </div>
     </div>
 
@@ -494,25 +487,6 @@ tu jest nazwa zadania"'></textarea>
                     console.error('Nie udało się skopiować: ', err);
                     alert('Nie udało się skopiować do schowka. Proszę skopiować ręcznie.');
                 });
-        });
-        
-        // Generate URL with Base64 encoded text
-        document.getElementById('generate-url-button').addEventListener('click', function() {
-            const rawText = document.getElementById('raw-input').value.trim();
-            if (!rawText) {
-                alert('Najpierw wprowadź tekst do pola tekstowego');
-                return;
-            }
-            
-            const base64Text = encodeTextToBase64(rawText);
-            const currentUrl = window.location.href.split('?')[0]; // Get base URL without params
-            const fullUrl = `${currentUrl}?text-b64=${base64Text}`;
-            
-            document.getElementById('url-input').value = fullUrl;
-            document.getElementById('generated-url').style.display = 'block';
-            
-            // Auto-select the URL for easy copying
-            document.getElementById('url-input').select();
         });
         
         // Toggle between input methods
