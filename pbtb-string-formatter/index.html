@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PB-T-B String Formatter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result-container {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .result {
+            font-family: monospace;
+            word-break: break-all;
+            font-size: 16px;
+        }
+        .copy-button {
+            background-color: #2ecc71;
+            margin-top: 10px;
+        }
+        .copy-button:hover {
+            background-color: #27ae60;
+        }
+        .or-divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #7f8c8d;
+        }
+        .toggle-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .toggle-button {
+            flex: 1;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .toggle-button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .toggle-button:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+        .toggle-button:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PB-T-B String Formatter</h1>
+        
+        <div class="toggle-container">
+            <div class="toggle-button active" id="separate-fields-toggle">Separate Fields</div>
+            <div class="toggle-button" id="raw-text-toggle">Raw Text Input</div>
+        </div>
+
+        <div id="separate-fields" class="form-section active">
+            <div class="input-group">
+                <label for="pb-number">Product Backlog Number:</label>
+                <input type="text" id="pb-number" placeholder="e.g. 876345">
+            </div>
+            
+            <div class="input-group">
+                <label for="task-number">Task Number:</label>
+                <input type="text" id="task-number" placeholder="e.g. 95867">
+            </div>
+            
+            <div class="input-group">
+                <label for="bug-number">Bug Number:</label>
+                <input type="text" id="bug-number" placeholder="e.g. 84736">
+            </div>
+            
+            <div class="input-group">
+                <label for="name">Task or Bug Name:</label>
+                <input type="text" id="name" placeholder="e.g. nazwa taska">
+            </div>
+            
+            <button id="format-button">Format String</button>
+        </div>
+
+        <div id="raw-text" class="form-section">
+            <div class="input-group">
+                <label for="raw-input">Paste Raw Text:</label>
+                <textarea id="raw-input" placeholder='e.g. 
+"Bug #84736
+Product Backlog #876345: nazwa product backlogu
+Task #95867: nazwa taska
+nazwa buga dla tego taska"'></textarea>
+            </div>
+            
+            <button id="parse-button">Parse & Format</button>
+        </div>
+        
+        <div class="result-container" style="display: none;">
+            <label>Formatted Result:</label>
+            <div class="result" id="result-text"></div>
+            <button class="copy-button" id="copy-button">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to remove diacritical marks (accents) from text
+        function removeDiacritics(text) {
+            return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+        
+        // Function to format the string
+        function formatString(pbNumber, taskNumber, bugNumber, name) {
+            // Clean the name: remove diacritics and replace spaces with underscores
+            let cleanName = removeDiacritics(name);
+            cleanName = cleanName.replace(/\s+/g, '_');
+            
+            // Remove any special characters that aren't alphanumeric or underscores
+            cleanName = cleanName.replace(/[^a-zA-Z0-9_]/g, '');
+            
+            // Format the final string
+            return `PB${pbNumber}_T${taskNumber}_B${bugNumber}_${cleanName}`;
+        }
+        
+        // Handle direct input formatting
+        document.getElementById('format-button').addEventListener('click', function() {
+            const pbNumber = document.getElementById('pb-number').value.trim();
+            const taskNumber = document.getElementById('task-number').value.trim();
+            const bugNumber = document.getElementById('bug-number').value.trim();
+            const name = document.getElementById('name').value.trim();
+            
+            if (!pbNumber || !taskNumber || !bugNumber || !name) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const formattedString = formatString(pbNumber, taskNumber, bugNumber, name);
+            displayResult(formattedString);
+        });
+        
+        // Handle raw text parsing and formatting
+        document.getElementById('parse-button').addEventListener('click', function() {
+            const rawText = document.getElementById('raw-input').value.trim();
+            
+            if (!rawText) {
+                alert('Please enter the raw text');
+                return;
+            }
+            
+            try {
+                // Extract the bug number
+                const bugMatch = rawText.match(/Bug #(\d+)/);
+                const bugNumber = bugMatch ? bugMatch[1] : '';
+                
+                // Extract the product backlog number
+                const pbMatch = rawText.match(/Product Backlog #(\d+)/);
+                const pbNumber = pbMatch ? pbMatch[1] : '';
+                
+                // Extract the task number
+                const taskMatch = rawText.match(/Task #(\d+)/);
+                const taskNumber = taskMatch ? taskMatch[1] : '';
+                
+                // Extract the task name
+                let taskName = '';
+                if (taskMatch) {
+                    const taskLine = rawText.split('\n').find(line => line.includes(`Task #${taskNumber}`));
+                    if (taskLine && taskLine.includes(':')) {
+                        taskName = taskLine.split(':')[1].trim();
+                    }
+                }
+                
+                if (!pbNumber || !taskNumber || !bugNumber) {
+                    alert('Could not find all required numbers in the text. Please check the format.');
+                    return;
+                }
+                
+                if (!taskName) {
+                    // If task name couldn't be extracted, try to use the last line as the name
+                    const lines = rawText.split('\n').filter(line => line.trim() !== '');
+                    if (lines.length > 0) {
+                        taskName = lines[lines.length - 1].trim();
+                    }
+                }
+                
+                const formattedString = formatString(pbNumber, taskNumber, bugNumber, taskName);
+                displayResult(formattedString);
+                
+                // Populate the separate fields for reference
+                document.getElementById('pb-number').value = pbNumber;
+                document.getElementById('task-number').value = taskNumber;
+                document.getElementById('bug-number').value = bugNumber;
+                document.getElementById('name').value = taskName;
+                
+            } catch (error) {
+                alert('Error parsing the text. Please check the format and try again.');
+                console.error(error);
+            }
+        });
+        
+        // Display the formatted result
+        function displayResult(text) {
+            document.getElementById('result-text').textContent = text;
+            document.querySelector('.result-container').style.display = 'block';
+        }
+        
+        // Copy result to clipboard
+        document.getElementById('copy-button').addEventListener('click', function() {
+            const resultText = document.getElementById('result-text').textContent;
+            
+            navigator.clipboard.writeText(resultText)
+                .then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    this.style.backgroundColor = '#27ae60';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.backgroundColor = '#2ecc71';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy to clipboard. Please copy manually.');
+                });
+        });
+        
+        // Toggle between input methods
+        document.getElementById('separate-fields-toggle').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('raw-text-toggle').classList.remove('active');
+            document.getElementById('separate-fields').classList.add('active');
+            document.getElementById('raw-text').classList.remove('active');
+        });
+        
+        document.getElementById('raw-text-toggle').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('separate-fields-toggle').classList.remove('active');
+            document.getElementById('separate-fields').classList.remove('active');
+            document.getElementById('raw-text').classList.add('active');
+        });
+    </script>
+</body>
+</html>
