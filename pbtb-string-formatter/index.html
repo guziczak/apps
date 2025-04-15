@@ -163,6 +163,10 @@
             <div class="format-example">PB876345_T95867_B84736_nazwa_buga_dla_tego_taska</div>
             <div>lub</div>
             <div class="format-example">PB76666_T85555_nazwa_zadania</div>
+            <div class="info-title" style="margin-top: 10px;">Parametr URL:</div>
+            <p>Możesz przekazać tekst przez parametr Base64 <code>text-b64</code> w URL, np.:</p>
+            <div class="format-example" style="font-size: 12px; word-break: break-all;">https://twojadomena.com/?text-b64=VGFzayAjODU1NTUNCkNoY2kNCn...</div>
+            <p style="font-size: 12px; margin-top: 5px;"><i>Uwaga: Używamy Base64 do bezpiecznego kodowania wszystkich znaków. Użyj przycisku "Generuj URL z tekstem" w wynikach.</i></p>
         </div>
         
         <div class="toggle-container">
@@ -241,6 +245,13 @@ tu jest nazwa zadania"'></textarea>
             <label>Sformatowany wynik:</label>
             <div class="result" id="result-text"></div>
             <button class="copy-button" id="copy-button">Kopiuj do schowka</button>
+            <button class="copy-button" id="generate-url-button" style="background-color: #f39c12; margin-top: 10px;">Generuj URL z tekstem</button>
+            <div id="generated-url" style="margin-top: 10px; display: none;">
+                <input type="text" id="url-input" style="font-size: 12px;" readonly>
+                <div style="font-size: 12px; margin-top: 5px; color: #7f8c8d;">
+                    Ten URL zawiera zakodowany tekst, który można bezpiecznie udostępnić lub zapisać.
+                </div>
+            </div>
         </div>
     </div>
 
@@ -275,6 +286,38 @@ tu jest nazwa zadania"'></textarea>
             // Format the final string
             return `PB${pbNumber}_T${taskNumber}_${cleanName}`;
         }
+
+        // Function to get query parameters from URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+        
+        // Function to encode text to Base64 (with UTF-8 support)
+        function encodeTextToBase64(text) {
+            try {
+                // Handle UTF-8 characters properly by using encodeURIComponent first
+                return btoa(encodeURIComponent(text).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+                }));
+            } catch (e) {
+                console.error('Encoding error:', e);
+                return '';
+            }
+        }
+        
+        // Function to decode Base64 text (with UTF-8 support)
+        function decodeBase64Text(base64) {
+            try {
+                // Decode Base64 to binary, then use decodeURIComponent to handle UTF-8
+                return decodeURIComponent(Array.prototype.map.call(atob(base64), function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+            } catch (e) {
+                console.error('Decoding error:', e);
+                return '';
+            }
+        }
         
         // Handle direct input formatting with bug
         document.getElementById('format-button').addEventListener('click', function() {
@@ -308,8 +351,8 @@ tu jest nazwa zadania"'></textarea>
             }
         });
         
-        // Handle raw text parsing and formatting
-        document.getElementById('parse-button').addEventListener('click', function() {
+        // Function to parse raw text
+        function parseRawText() {
             const rawText = document.getElementById('raw-input').value.trim();
             
             if (!rawText) {
@@ -391,10 +434,17 @@ tu jest nazwa zadania"'></textarea>
                 
                 displayResult(formattedString);
                 
+                return true; // Parsing successful
             } catch (error) {
                 alert('Błąd podczas analizy tekstu. Sprawdź format i spróbuj ponownie.');
                 console.error(error);
+                return false; // Parsing failed
             }
+        }
+        
+        // Handle raw text parsing and formatting
+        document.getElementById('parse-button').addEventListener('click', function() {
+            parseRawText();
         });
         
         // Display the formatted result
@@ -422,6 +472,25 @@ tu jest nazwa zadania"'></textarea>
                     console.error('Nie udało się skopiować: ', err);
                     alert('Nie udało się skopiować do schowka. Proszę skopiować ręcznie.');
                 });
+        });
+        
+        // Generate URL with Base64 encoded text
+        document.getElementById('generate-url-button').addEventListener('click', function() {
+            const rawText = document.getElementById('raw-input').value.trim();
+            if (!rawText) {
+                alert('Najpierw wprowadź tekst do pola tekstowego');
+                return;
+            }
+            
+            const base64Text = encodeTextToBase64(rawText);
+            const currentUrl = window.location.href.split('?')[0]; // Get base URL without params
+            const fullUrl = `${currentUrl}?text-b64=${base64Text}`;
+            
+            document.getElementById('url-input').value = fullUrl;
+            document.getElementById('generated-url').style.display = 'block';
+            
+            // Auto-select the URL for easy copying
+            document.getElementById('url-input').select();
         });
         
         // Toggle between input methods
@@ -452,6 +521,61 @@ tu jest nazwa zadania"'></textarea>
             document.getElementById('tab-with-bug').classList.remove('active');
             document.getElementById('fields-with-bug').style.display = 'none';
             document.getElementById('fields-without-bug').style.display = 'block';
+        });
+        
+        // Function to try various ways to parse URL parameters
+        function tryParseURLText() {
+            // First check for Base64 encoded parameter
+            const base64Param = getQueryParam('text-b64');
+            if (base64Param) {
+                return decodeBase64Text(base64Param);
+            }
+            
+            // If no Base64 param found, try the normal text parameter
+            let textParam = getQueryParam('text');
+            
+            // Attempt 2: Try getting everything after ?text= directly from URL
+            if (!textParam || textParam.length === 0) {
+                const urlString = window.location.href;
+                const textParamIndex = urlString.indexOf('?text=');
+                
+                if (textParamIndex >= 0) {
+                    // Get everything after ?text=
+                    textParam = urlString.substring(textParamIndex + 6);
+                    
+                    // Remove any hash part
+                    const hashIndex = textParam.indexOf('#');
+                    if (hashIndex >= 0) {
+                        textParam = textParam.substring(0, hashIndex);
+                    }
+                    
+                    try {
+                        // Try to decode it (it might be encoded or partially encoded)
+                        textParam = decodeURIComponent(textParam);
+                    } catch (e) {
+                        // If decoding fails, use the original text
+                        console.warn('Decoding URL parameter failed, using raw value');
+                    }
+                }
+            }
+            
+            return textParam;
+        }
+        
+        // Check for text parameter in URL on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const textParam = tryParseURLText();
+            
+            if (textParam) {
+                // Switch to raw text input mode
+                document.getElementById('raw-text-toggle').click();
+                
+                // Set the text in the input field
+                document.getElementById('raw-input').value = textParam;
+                
+                // Try to parse the text automatically
+                parseRawText();
+            }
         });
     </script>
 </body>
