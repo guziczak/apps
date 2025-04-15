@@ -414,18 +414,18 @@
                 </div>
                 
                 <div class="tabs">
-                    <div class="tab active" id="fields-tab">
+                    <div class="tab" id="fields-tab">
                         <i class="fas fa-list-ul"></i>
                         Oddzielne pola
                     </div>
-                    <div class="tab" id="text-tab">
+                    <div class="tab active" id="text-tab">
                         <i class="fas fa-align-left"></i>
                         Tekst wejściowy
                     </div>
                 </div>
                 
                 <!-- Formularz oddzielnych pól -->
-                <div id="fields-form" class="form-section active">
+                <div id="fields-form" class="form-section">
                     <div class="inner-tabs">
                         <div class="inner-tab active" id="with-bug-tab">Z numerem błędu</div>
                         <div class="inner-tab" id="without-bug-tab">Bez numeru błędu</div>
@@ -484,7 +484,7 @@
                 </div>
                 
                 <!-- Formularz tekstu wejściowego -->
-                <div id="text-form" class="form-section">
+                <div id="text-form" class="form-section active">
                     <div class="form-group">
                         <label for="raw-input">Wklej tekst wejściowy</label>
                         <textarea class="form-control" id="raw-input" placeholder='np. 
@@ -831,11 +831,11 @@ tu jest nazwa zadania"'></textarea>
         
         // Check for text parameter in URL on page load
         window.addEventListener('DOMContentLoaded', function() {
-            // Ensure first tab is active by default (already set in HTML, but just to be sure)
-            document.getElementById('fields-tab').classList.add('active');
-            document.getElementById('text-tab').classList.remove('active');
-            document.getElementById('fields-form').classList.add('active');
-            document.getElementById('text-form').classList.remove('active');
+            // Ensure text tab is active by default (already set in HTML, but just to be sure)
+            document.getElementById('fields-tab').classList.remove('active');
+            document.getElementById('text-tab').classList.add('active');
+            document.getElementById('fields-form').classList.remove('active');
+            document.getElementById('text-form').classList.add('active');
             
             const textParam = tryParseURLText();
             
