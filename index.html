@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikacje - guziczak.github.io</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+        /* ============= ZMIENNE ============= */
+        :root {
+            /* Kolory - zaktualizowane, aby pasowały do główna.html */
+            --primary: #0070f3;
+            --primary-dark: #0050a0;
+            --primary-light: #3291ff;
+            --primary-bg: rgba(0, 112, 243, 0.1);
+            --accent: #34d399;
+            --accent-light: #26de81;
+            --tertiary-color: #8b5cf6;
+
+            /* Tło i karty */
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --secondary: #f8f9fa;
+
+            /* Dodanie wartości RGB dla kolorów tła */
+            --bg-color-rgb: 249, 250, 251;
+            --card-bg-rgb: 255, 255, 255;
+            --secondary-rgb: 248, 249, 250;
+
+            /* Tekst */
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --text-muted: #9ca3af;
+
+            /* Granice i elementy */
+            --border: #e9ecef;
+            --border-light: #f1f3f5;
+
+            /* Cienie */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Zaokrąglenia */
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            /* Odstępy */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+
+            /* Animacje */
+            --transition-fast: all 0.2s ease;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            --transition-bezier: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+            /* Czcionki */
+            --heading-font: 'Poppins', 'Segoe UI', sans-serif;
+            --body-font: 'Inter', 'Roboto', 'Arial', sans-serif;
+        }
+
+        /* Tryb ciemny - zmienne */
+        .dark-mode {
+            --primary: #3291ff;
+            --primary-dark: #0070f3;
+            --primary-light: #5cadff;
+            --primary-bg: rgba(0, 112, 243, 0.15);
+
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --secondary: #2a2b2c;
+
+            /* Dodanie wartości RGB dla kolorów tła w trybie ciemnym */
+            --bg-color-rgb: 17, 24, 39;
+            --card-bg-rgb: 31, 41, 55;
+            --secondary-rgb: 42, 43, 44;
+
+            --text: #f3f4f6;
+            --text-light: #d1d5db;
+            --text-muted: #9ca3af;
+
+            --border: #374151;
+            --border-light: #4b5563;
+
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ============= RESET I PODSTAWY ============= */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--bg-color);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 0;
+            margin: 0;
+            transition: var(--transition);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        /* ============= PRELOADER ============= */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--secondary) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .preloader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 112, 243, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+        }
+
+        .preloader-text {
+            margin-top: 1rem;
+            font-family: var(--heading-font);
+            font-size: 1.2rem;
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ============= SCROLL PROGRESS ============= */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            width: 0%;
+            z-index: 2000;
+            transition: width 0.1s ease;
+        }
+
+        /* ============= HEADER ============= */
+        .header {
+            background-color: rgba(var(--bg-color-rgb), 0.8);
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .header.scrolled {
+            padding: 0.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem var(--spacing-lg);
+            transition: var(--transition);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.25rem;
+            font-family: var(--heading-font);
+            transition: var(--transition);
+        }
+
+        .logo:hover .logo-icon {
+            transform: rotate(20deg) scale(1.1);
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s var(--transition-bezier);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .theme-toggle {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--primary-bg);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Efekt naciśnięcia przycisku */
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* ============= MAIN CONTENT ============= */
+        .main-content {
+            padding: var(--spacing-xl) 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background gradient */
+        .main-content::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(0, 112, 243, 0.1) 0%, rgba(0, 112, 243, 0) 70%);
+            z-index: -1;
+            border-radius: 50%;
+        }
+
+        /* Particles background */
+        .bg-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.3;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-30px) translateX(30px);
+            }
+            50% {
+                transform: translateY(-15px) translateX(-20px);
+            }
+            75% {
+                transform: translateY(30px) translateX(10px);
+            }
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            animation: fadeInDown 1s ease;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 700;
+            font-family: var(--heading-font);
+            position: relative;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ============= APP GRID ============= */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .app-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition-slow);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(0);
+            position: relative;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 1;
+        }
+
+        .app-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+            border-color: transparent;
+        }
+
+        .app-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .app-card-image {
+            height: 180px;
+            background-color: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 3.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .app-card:hover .app-card-image img,
+        .app-card:hover .app-card-image i {
+            transform: scale(1.1);
+        }
+
+        .app-card-image img {
+            height: 100px;
+            transition: transform 0.5s ease;
+        }
+
+        .app-card-image i {
+            transition: transform 0.5s ease;
+        }
+
+        .app-card-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .app-card:hover .app-card-image::after {
+            opacity: 1;
+        }
+
+        .app-card-content {
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .app-card-title {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            line-height: 1.4;
+            font-family: var(--heading-font);
+        }
+
+        .app-card-description {
+            color: var(--text-light);
+            margin-bottom: var(--spacing-md);
+            flex: 1;
+        }
+
+        .app-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .app-card-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: 50px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-card-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-card-status {
+            font-size: 0.875rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background-color: var(--accent);
+            color: white;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .app-card:hover .app-card-status {
+            transform: scale(1.05);
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: var(--text-muted);
+            color: var(--bg-color);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-left: var(--spacing-xs);
+            vertical-align: middle;
+        }
+
+        /* Inactive cards with coming soon badge */
+        .app-card.inactive {
+            opacity: 0.7;
+            cursor: default;
+        }
+
+        .app-card.inactive:hover {
+            transform: translateY(-5px);
+        }
+
+        .app-card.inactive .app-card-btn {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ============= FOOTER ============= */
+        .footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: var(--spacing-lg) 0;
+            margin-top: var(--spacing-xl);
+            transition: var(--transition);
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .footer-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo {
+            font-family: var(--heading-font);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing);
+            margin-top: var(--spacing-sm);
+        }
+
+        .footer-link {
+            color: var(--primary);
+            transition: var(--transition-fast);
+            padding: 0.5rem;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* ============= BACK TO TOP BUTTON ============= */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 999;
+            transform: scale(0) rotate(-45deg);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) rotate(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-to-top::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            z-index: -1;
+        }
+
+        .back-to-top:hover::after {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+
+        /* ============= ANIMATIONS ============= */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); opacity: 0.8; }
+            to { transform: scale(1.05); opacity: 1; }
+        }
+
+        .animated-icon {
+            animation: pulse 1.5s infinite alternate ease-in-out;
+        }
+
+        /* Animation delays for app cards */
+        .app-card:nth-child(1) {
+            animation: fadeIn 0.5s 0.1s both;
+        }
+        .app-card:nth-child(2) {
+            animation: fadeIn 0.5s 0.2s both;
+        }
+        .app-card:nth-child(3) {
+            animation: fadeIn 0.5s 0.3s both;
+        }
+
+        /* ============= MEDIA QUERIES ============= */
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing);
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: var(--spacing);
+            }
+
+            .footer-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-container {
+                padding: var(--spacing);
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            
+            .animated-icon {
+                animation: none !important;
+            }
+
+            .app-card:hover {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-spinner"></div>
+            <div class="preloader-text">Ładowanie...</div>
+        </div>
+    </div>
+
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Nagłówek -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <span>Guziczak Apps</span>
+            </a>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Zmień motyw">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Główna zawartość -->
+    <main class="main-content">
+        <!-- Background particles -->
+        <div class="bg-particles" id="bgParticles"></div>
+
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Moje Aplikacje</h1>
+                <p class="page-subtitle">
+                    Kolekcja użytecznych aplikacji webowych, które mogą ułatwić Ci codzienne zadania.
+                </p>
+            </div>
+
+            <div class="app-grid" id="appGrid">
+                <!-- Aplikacja: Książka Kucharska -->
+                <a href="cook/index.html" class="app-card">
+                    <div class="app-card-image">
+                        <img src="icons/cookbook.svg" alt="Książka Kucharska">
+                    </div>
+                    <div class="app-card-content">
+                        <h2 class="app-card-title">Książka Kucharska</h2>
+                        <p class="app-card-description">
+                            Odkryj kolekcję przepisów kulinarnych, zarządzaj swoimi ulubionymi daniami i znajdź inspirację na każdy posiłek.
+                        </p>
+                        <div class="app-card-footer">
+                            <div class="app-card-btn">
+                                <i class="fas fa-arrow-right"></i>
+                                <span>Przejdź</span>
+                            </div>
+                            <div class="app-card-status">Aktywna</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Zaślepka na przyszłe aplikacje -->
+                <div class="app-card inactive">
+                    <div class="app-card-image">
+                        <i class="fas fa-calendar animated-icon"></i>
+                    </div>
+                    <div class="app-card-content">
+                        <h2 class="app-card-title">Organizator zadań <span class="coming-soon-badge">Wkrótce</span></h2>
+                        <p class="app-card-description">
+                            Efektywnie zarządzaj swoimi zadaniami, ustal priorytety i śledź postępy w realizacji projektów.
+                        </p>
+                        <div class="app-card-footer">
+                            <div class="app-card-btn">
+                                <i class="fas fa-clock"></i>
+                                <span>Wkrótce dostępne</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zaślepka na przyszłe aplikacje -->
+                <div class="app-card inactive">
+                    <div class="app-card-image">
+                        <i class="fas fa-calculator animated-icon"></i>
+                    </div>
+                    <div class="app-card-content">
+                        <h2 class="app-card-title">Kalkulator budżetu <span class="coming-soon-badge">Wkrótce</span></h2>
+                        <p class="app-card-description">
+                            Planuj i kontroluj swoje finanse, śledź wydatki i oszczędności z pomocą prostego narzędzia.
+                        </p>
+                        <div class="app-card-footer">
+                            <div class="app-card-btn">
+                                <i class="fas fa-clock"></i>
+                                <span>Wkrótce dostępne</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Stopka -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-text">
+                <div class="footer-logo">Guziczak Apps</div>
+                <p>&copy; 2025 Wszystkie prawa zastrzeżone</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/guziczak" class="footer-link" target="_blank">GitHub</a>
+                <a href="#" class="footer-link">Polityka prywatności</a>
+                <a href="#" class="footer-link">Kontakt</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTopBtn" aria-label="Powrót do góry">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Dodaj animowane cząsteczki tła
+        function addBackgroundParticles() {
+            const particleContainer = document.getElementById('bgParticles');
+            if (!particleContainer) return;
+
+            // Utwórz cząsteczki
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // Losowa pozycja
+                const top = Math.random() * 100;
+                const left = Math.random() * 100;
+
+                // Losowy rozmiar (5-15px)
+                const size = Math.random() * 10 + 5;
+
+                // Losowa przezroczystość (0.1-0.3)
+                const opacity = Math.random() * 0.2 + 0.1;
+
+                // Losowe opóźnienie animacji
+                const delay = Math.random() * 5;
+
+                // Zastosuj style
+                particle.style.top = `${top}%`;
+                particle.style.left = `${left}%`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.opacity = opacity;
+                particle.style.animationDelay = `${delay}s`;
+
+                particleContainer.appendChild(particle);
+            }
+        }
+
+        // Aktualizacja paska postępu przewijania
+        function updateScrollProgress() {
+            const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = window.scrollY;
+
+            const progressPercentage = (scrolled / scrollable) * 100;
+            const scrollProgress = document.getElementById('scrollProgress');
+            if (scrollProgress) {
+                scrollProgress.style.width = Math.min(100, Math.max(0, progressPercentage)) + '%';
+            }
+        }
+
+        // Obsługa przycisku powrotu do góry
+        function handleBackToTopButton() {
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            if (!backToTopBtn) return;
+
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        }
+
+        // Obsługa paska nawigacji przy przewijaniu
+        function handleNavbarOnScroll() {
+            const header = document.getElementById('header');
+            if (!header) return;
+
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        }
+
+        // Obsługa przełączania motywu (jasny/ciemny)
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) {
+                if (isDarkMode) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            }
+        }
+
+        // Zoptymalizowana obsługa przewijania
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    updateScrollProgress();
+                    handleBackToTopButton();
+                    handleNavbarOnScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Inicjalizacja po załadowaniu dokumentu
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ustawienie preloadera
+            const preloader = document.getElementById('preloader');
+            setTimeout(() => {
+                if (preloader) preloader.classList.add('hidden');
+            }, 1000);
+
+            // Inicjalizacja motywu
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+                document.body.classList.add('dark-mode');
+                const themeIcon = document.getElementById('themeIcon');
+                if (themeIcon) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                }
+            }
+
+            // Obsługa przycisku zmiany motywu
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleDarkMode);
+            }
+
+            // Obsługa przycisku powrotu do góry
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            if (backToTopBtn) {
+                backToTopBtn.addEventListener('click', function() {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Dodawanie tła z cząsteczkami
+            addBackgroundParticles();
+
+            // Inicjalizacja komponentów
+            updateScrollProgress();
+            handleBackToTopButton();
+            handleNavbarOnScroll();
+        });
+    </script>
+</body>
+</html>
