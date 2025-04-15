@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,58 +109,138 @@
         .form-section.active {
             display: block;
         }
+        .info-box {
+            background-color: #d4edff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .format-example {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 15px;
+            background-color: #ecf0f1;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .tab:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+        .tab:last-child {
+            border-radius: 0 4px 4px 0;
+            margin-right: 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PB-T-B String Formatter</h1>
+        <h1>Formatter Identyfikatorów</h1>
+        
+        <div class="info-box">
+            <div class="info-title">Obsługiwane formaty:</div>
+            <p>Aplikacja automatycznie rozpoznaje format wejściowy i generuje odpowiedni identyfikator:</p>
+            <div class="format-example">PB876345_T95867_B84736_nazwa_buga_dla_tego_taska</div>
+            <div>lub</div>
+            <div class="format-example">PB76666_T85555_nazwa_zadania</div>
+        </div>
         
         <div class="toggle-container">
-            <div class="toggle-button active" id="separate-fields-toggle">Separate Fields</div>
-            <div class="toggle-button" id="raw-text-toggle">Raw Text Input</div>
+            <div class="toggle-button active" id="separate-fields-toggle">Oddzielne pola</div>
+            <div class="toggle-button" id="raw-text-toggle">Tekst wejściowy</div>
         </div>
 
         <div id="separate-fields" class="form-section active">
-            <div class="input-group">
-                <label for="pb-number">Product Backlog Number:</label>
-                <input type="text" id="pb-number" placeholder="e.g. 876345">
+            <div class="tabs">
+                <div class="tab active" id="tab-with-bug">Z numerem błędu</div>
+                <div class="tab" id="tab-without-bug">Bez numeru błędu</div>
             </div>
             
-            <div class="input-group">
-                <label for="task-number">Task Number:</label>
-                <input type="text" id="task-number" placeholder="e.g. 95867">
+            <div id="fields-with-bug" class="fields-section">
+                <div class="input-group">
+                    <label for="pb-number">Numer Product Backlog:</label>
+                    <input type="text" id="pb-number" placeholder="np. 876345">
+                </div>
+                
+                <div class="input-group">
+                    <label for="task-number">Numer Taska:</label>
+                    <input type="text" id="task-number" placeholder="np. 95867">
+                </div>
+                
+                <div class="input-group">
+                    <label for="bug-number">Numer Błędu:</label>
+                    <input type="text" id="bug-number" placeholder="np. 84736">
+                </div>
+                
+                <div class="input-group">
+                    <label for="name">Nazwa taska/błędu:</label>
+                    <input type="text" id="name" placeholder="np. nazwa taska">
+                </div>
             </div>
             
-            <div class="input-group">
-                <label for="bug-number">Bug Number:</label>
-                <input type="text" id="bug-number" placeholder="e.g. 84736">
+            <div id="fields-without-bug" class="fields-section" style="display: none;">
+                <div class="input-group">
+                    <label for="pb-number-2">Numer Product Backlog:</label>
+                    <input type="text" id="pb-number-2" placeholder="np. 76666">
+                </div>
+                
+                <div class="input-group">
+                    <label for="task-number-2">Numer Taska:</label>
+                    <input type="text" id="task-number-2" placeholder="np. 85555">
+                </div>
+                
+                <div class="input-group">
+                    <label for="name-2">Nazwa zadania:</label>
+                    <input type="text" id="name-2" placeholder="np. tu jest nazwa zadania">
+                </div>
             </div>
             
-            <div class="input-group">
-                <label for="name">Task or Bug Name:</label>
-                <input type="text" id="name" placeholder="e.g. nazwa taska">
-            </div>
-            
-            <button id="format-button">Format String</button>
+            <button id="format-button">Formatuj ciąg znaków</button>
         </div>
 
         <div id="raw-text" class="form-section">
             <div class="input-group">
-                <label for="raw-input">Paste Raw Text:</label>
-                <textarea id="raw-input" placeholder='e.g. 
+                <label for="raw-input">Wklej tekst wejściowy:</label>
+                <textarea id="raw-input" placeholder='np. 
 "Bug #84736
 Product Backlog #876345: nazwa product backlogu
 Task #95867: nazwa taska
-nazwa buga dla tego taska"'></textarea>
+nazwa buga dla tego taska"
+
+lub
+
+"Task #85555
+Product Backlog #76666: tu jest nazwa product backlogu
+tu jest nazwa zadania"'></textarea>
             </div>
             
-            <button id="parse-button">Parse & Format</button>
+            <button id="parse-button">Parsuj i formatuj</button>
         </div>
         
         <div class="result-container" style="display: none;">
-            <label>Formatted Result:</label>
+            <label>Sformatowany wynik:</label>
             <div class="result" id="result-text"></div>
-            <button class="copy-button" id="copy-button">Copy to Clipboard</button>
+            <button class="copy-button" id="copy-button">Kopiuj do schowka</button>
         </div>
     </div>
 
@@ -170,8 +250,8 @@ nazwa buga dla tego taska"'></textarea>
             return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
         
-        // Function to format the string
-        function formatString(pbNumber, taskNumber, bugNumber, name) {
+        // Function to format the string with bug number
+        function formatStringWithBug(pbNumber, taskNumber, bugNumber, name) {
             // Clean the name: remove diacritics and replace spaces with underscores
             let cleanName = removeDiacritics(name);
             cleanName = cleanName.replace(/\s+/g, '_');
@@ -183,20 +263,49 @@ nazwa buga dla tego taska"'></textarea>
             return `PB${pbNumber}_T${taskNumber}_B${bugNumber}_${cleanName}`;
         }
         
-        // Handle direct input formatting
+        // Function to format the string without bug number
+        function formatStringWithoutBug(pbNumber, taskNumber, name) {
+            // Clean the name: remove diacritics and replace spaces with underscores
+            let cleanName = removeDiacritics(name);
+            cleanName = cleanName.replace(/\s+/g, '_');
+            
+            // Remove any special characters that aren't alphanumeric or underscores
+            cleanName = cleanName.replace(/[^a-zA-Z0-9_]/g, '');
+            
+            // Format the final string
+            return `PB${pbNumber}_T${taskNumber}_${cleanName}`;
+        }
+        
+        // Handle direct input formatting with bug
         document.getElementById('format-button').addEventListener('click', function() {
-            const pbNumber = document.getElementById('pb-number').value.trim();
-            const taskNumber = document.getElementById('task-number').value.trim();
-            const bugNumber = document.getElementById('bug-number').value.trim();
-            const name = document.getElementById('name').value.trim();
+            const activeTab = document.querySelector('.tab.active').id;
             
-            if (!pbNumber || !taskNumber || !bugNumber || !name) {
-                alert('Please fill in all fields');
-                return;
+            if (activeTab === 'tab-with-bug') {
+                const pbNumber = document.getElementById('pb-number').value.trim();
+                const taskNumber = document.getElementById('task-number').value.trim();
+                const bugNumber = document.getElementById('bug-number').value.trim();
+                const name = document.getElementById('name').value.trim();
+                
+                if (!pbNumber || !taskNumber || !bugNumber || !name) {
+                    alert('Proszę wypełnić wszystkie pola');
+                    return;
+                }
+                
+                const formattedString = formatStringWithBug(pbNumber, taskNumber, bugNumber, name);
+                displayResult(formattedString);
+            } else {
+                const pbNumber = document.getElementById('pb-number-2').value.trim();
+                const taskNumber = document.getElementById('task-number-2').value.trim();
+                const name = document.getElementById('name-2').value.trim();
+                
+                if (!pbNumber || !taskNumber || !name) {
+                    alert('Proszę wypełnić wszystkie pola');
+                    return;
+                }
+                
+                const formattedString = formatStringWithoutBug(pbNumber, taskNumber, name);
+                displayResult(formattedString);
             }
-            
-            const formattedString = formatString(pbNumber, taskNumber, bugNumber, name);
-            displayResult(formattedString);
         });
         
         // Handle raw text parsing and formatting
@@ -204,13 +313,14 @@ nazwa buga dla tego taska"'></textarea>
             const rawText = document.getElementById('raw-input').value.trim();
             
             if (!rawText) {
-                alert('Please enter the raw text');
+                alert('Proszę wprowadzić tekst wejściowy');
                 return;
             }
             
             try {
-                // Extract the bug number
+                // Extract the bug number (if exists)
                 const bugMatch = rawText.match(/Bug #(\d+)/);
+                const hasBug = !!bugMatch;
                 const bugNumber = bugMatch ? bugMatch[1] : '';
                 
                 // Extract the product backlog number
@@ -221,39 +331,68 @@ nazwa buga dla tego taska"'></textarea>
                 const taskMatch = rawText.match(/Task #(\d+)/);
                 const taskNumber = taskMatch ? taskMatch[1] : '';
                 
-                // Extract the task name
-                let taskName = '';
-                if (taskMatch) {
-                    const taskLine = rawText.split('\n').find(line => line.includes(`Task #${taskNumber}`));
-                    if (taskLine && taskLine.includes(':')) {
-                        taskName = taskLine.split(':')[1].trim();
-                    }
-                }
-                
-                if (!pbNumber || !taskNumber || !bugNumber) {
-                    alert('Could not find all required numbers in the text. Please check the format.');
+                if (!pbNumber || !taskNumber) {
+                    alert('Nie można znaleźć numeru Product Backlog lub Task w tekście. Sprawdź format.');
                     return;
                 }
                 
-                if (!taskName) {
-                    // If task name couldn't be extracted, try to use the last line as the name
+                let formattedString = '';
+                
+                if (hasBug) {
+                    // Format for text with Bug number
+                    
+                    // For bug format, always use the last line as the name (bug name)
+                    let bugName = '';
                     const lines = rawText.split('\n').filter(line => line.trim() !== '');
                     if (lines.length > 0) {
-                        taskName = lines[lines.length - 1].trim();
+                        const lastLine = lines[lines.length - 1].trim();
+                        // Check if the last line is not a line with Bug/PB/Task number
+                        if (!lastLine.match(/(Bug|Product Backlog|Task) #\d+/)) {
+                            bugName = lastLine;
+                        }
                     }
+                    
+                    formattedString = formatStringWithBug(pbNumber, taskNumber, bugNumber, bugName);
+                    
+                    // Populate the separate fields for reference
+                    document.getElementById('pb-number').value = pbNumber;
+                    document.getElementById('task-number').value = taskNumber;
+                    document.getElementById('bug-number').value = bugNumber;
+                    document.getElementById('name').value = bugName;
+                    
+                    // Switch to the right tab
+                    document.getElementById('tab-with-bug').click();
+                    
+                } else {
+                    // Format for text without Bug number
+                    
+                    // Extract the task name (usually the last line)
+                    let taskName = '';
+                    const lines = rawText.split('\n').filter(line => line.trim() !== '');
+                    
+                    if (lines.length > 0) {
+                        // The last line is likely the task name if it doesn't contain Product Backlog or Task
+                        const lastLine = lines[lines.length - 1].trim();
+                        if (!lastLine.match(/(Product Backlog|Task) #\d+/)) {
+                            taskName = lastLine;
+                        }
+                    }
+                    
+                    formattedString = formatStringWithoutBug(pbNumber, taskNumber, taskName);
+                    
+                    // Populate the separate fields for reference
+                    document.getElementById('pb-number-2').value = pbNumber;
+                    document.getElementById('task-number-2').value = taskNumber;
+                    document.getElementById('name-2').value = taskName;
+                    
+                    // Switch to the right tab
+                    document.getElementById('tab-without-bug').click();
                 }
                 
-                const formattedString = formatString(pbNumber, taskNumber, bugNumber, taskName);
                 displayResult(formattedString);
                 
-                // Populate the separate fields for reference
-                document.getElementById('pb-number').value = pbNumber;
-                document.getElementById('task-number').value = taskNumber;
-                document.getElementById('bug-number').value = bugNumber;
-                document.getElementById('name').value = taskName;
-                
             } catch (error) {
-                alert('Error parsing the text. Please check the format and try again.');
+                alert('Błąd podczas analizy tekstu. Sprawdź format i spróbuj ponownie.');
                 console.error(error);
             }
         });
@@ -271,7 +410,7 @@ nazwa buga dla tego taska"'></textarea>
             navigator.clipboard.writeText(resultText)
                 .then(() => {
                     const originalText = this.textContent;
-                    this.textContent = 'Copied!';
+                    this.textContent = 'Skopiowano!';
                     this.style.backgroundColor = '#27ae60';
                     
                     setTimeout(() => {
@@ -280,8 +419,8 @@ nazwa buga dla tego taska"'></textarea>
                     }, 2000);
                 })
                 .catch(err => {
-                    console.error('Failed to copy: ', err);
-                    alert('Failed to copy to clipboard. Please copy manually.');
+                    console.error('Nie udało się skopiować: ', err);
+                    alert('Nie udało się skopiować do schowka. Proszę skopiować ręcznie.');
                 });
         });
         
@@ -298,6 +437,21 @@ nazwa buga dla tego taska"'></textarea>
             document.getElementById('separate-fields-toggle').classList.remove('active');
             document.getElementById('separate-fields').classList.remove('active');
             document.getElementById('raw-text').classList.add('active');
+        });
+        
+        // Toggle between fields with/without bug
+        document.getElementById('tab-with-bug').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('tab-without-bug').classList.remove('active');
+            document.getElementById('fields-with-bug').style.display = 'block';
+            document.getElementById('fields-without-bug').style.display = 'none';
+        });
+        
+        document.getElementById('tab-without-bug').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('tab-with-bug').classList.remove('active');
+            document.getElementById('fields-with-bug').style.display = 'none';
+            document.getElementById('fields-without-bug').style.display = 'block';
         });
     </script>
 </body>
