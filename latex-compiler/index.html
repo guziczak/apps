@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kompilator LaTeX Online</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.22.0/ace.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --mid-gray: #ddd;
+            --paper-color: #fff;
+            --text-color: #333;
+            --font-size: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: var(--font-size);
+            line-height: 1.5;
+            color: var(--text-color);
+            background-color: var(--light-gray);
+            padding: 1rem;
+        }
+
+        header {
+            background-color: var(--dark-gray);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px 5px 0 0;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1600px;
+            margin: 0 auto;
+            height: calc(100vh - 2rem);
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .toolbar {
+            display: flex;
+            padding: 0.5rem;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid var(--mid-gray);
+        }
+
+        .toolbar button {
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .toolbar button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .toolbar button svg {
+            margin-right: 0.25rem;
+        }
+
+        .toolbar select {
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            border: 1px solid var(--mid-gray);
+            border-radius: 4px;
+        }
+
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--mid-gray);
+        }
+
+        .editor-header {
+            padding: 0.5rem;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--mid-gray);
+            font-weight: 600;
+        }
+
+        #editor {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .preview-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 0.5rem;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--mid-gray);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-options {
+            display: flex;
+            align-items: center;
+        }
+
+        .preview-options label {
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .preview-options input {
+            margin-right: 0.25rem;
+        }
+
+        #preview {
+            flex: 1;
+            padding: 2rem;
+            overflow: auto;
+            background-color: var(--paper-color);
+        }
+
+        /* LaTeX Document Styles */
+        .latex-document {
+            font-family: "Computer Modern", "Times New Roman", serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #111;
+            line-height: 1.6;
+        }
+
+        .latex-document .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .latex-document .author {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .latex-document .abstract {
+            font-size: 0.9rem;
+            margin: 1rem 2rem 2rem;
+            font-style: italic;
+        }
+
+        .latex-document .keywords {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .latex-document h2 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .latex-document h3 {
+            font-size: 16px;
+            font-style: italic;
+            font-weight: normal;
+            margin: 1.2rem 0 0.8rem;
+        }
+
+        .latex-document p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        .latex-document figure {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .latex-document figcaption {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .latex-document .bibliography {
+            margin-top: 2rem;
+        }
+
+        .latex-document .bibliography-item {
+            text-indent: -1.5rem;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .latex-document .two-column {
+            column-count: 2;
+            column-gap: 2rem;
+        }
+
+        .latex-document em {
+            font-style: italic;
+        }
+
+        .latex-document .figure {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .latex-document .figure img {
+            max-width: 100%;
+        }
+
+        .latex-document .figure .caption {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .console {
+            background-color: #222;
+            color: #eee;
+            padding: 0.5rem;
+            font-family: monospace;
+            height: 100px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .console.active {
+            display: block;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .success {
+            color: #51cf66;
+        }
+
+        .warning {
+            color: #fcc419;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .editor-container, .preview-container {
+                width: 100%;
+                height: 50%;
+            }
+
+            .editor-container {
+                border-right: none;
+                border-bottom: 1px solid var(--mid-gray);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Kompilator LaTeX Online</h1>
+        <div>
+            <span id="status">Gotowy</span>
+        </div>
+    </header>
+
+    <div class="toolbar">
+        <button id="compile-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                <polyline points="16 7 22 7 22 13"></polyline>
+            </svg>
+            Kompiluj
+        </button>
+        <button id="example-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Przykład
+        </button>
+        <button id="clear-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Wyczyść
+        </button>
+        <button id="console-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            Konsola
+        </button>
+    </div>
+
+    <div class="content">
+        <div class="editor-container">
+            <div class="editor-header">Kod LaTeX</div>
+            <div id="editor"></div>
+        </div>
+
+        <div class="preview-container">
+            <div class="preview-header">
+                <span>Podgląd</span>
+                <div class="preview-options">
+                    <label>
+                        <input type="checkbox" id="auto-compile" checked>
+                        Auto-kompilacja
+                    </label>
+                    <label>
+                        <input type="radio" name="view-mode" id="view-rendered" checked>
+                        Renderowanie
+                    </label>
+                    <label>
+                        <input type="radio" name="view-mode" id="view-html">
+                        HTML
+                    </label>
+                </div>
+            </div>
+            <div id="preview"></div>
+        </div>
+    </div>
+
+    <div class="console" id="console">
+        <div class="console-content"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Ace Editor - with safety check
+        let editor;
+        try {
+            editor = ace.edit("editor");
+            editor.setTheme("ace/theme/textmate");
+            editor.session.setMode("ace/mode/latex");
+            editor.setOptions({
+                fontSize: "14px",
+                showPrintMargin: false,
+                wrap: true
+            });
+        } catch (e) {
+            console.error("Nie można zainicjalizować edytora Ace", e);
+            document.getElementById('editor').innerHTML = '<textarea style="width:100%;height:100%;font-family:monospace;"></textarea>';
+            editor = {
+                getValue: function() {
+                    return document.querySelector('#editor textarea').value;
+                },
+                setValue: function(val) {
+                    document.querySelector('#editor textarea').value = val;
+                },
+                clearSelection: function() {},
+                session: { on: function() {} }
+            };
+        }
+
+        // DOM Elements
+        const previewElement = document.getElementById('preview');
+        const compileBtn = document.getElementById('compile-btn');
+        const exampleBtn = document.getElementById('example-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const consoleToggle = document.getElementById('console-toggle');
+        const consoleElement = document.getElementById('console');
+        const consoleContent = document.querySelector('.console-content');
+        const autoCompileCheckbox = document.getElementById('auto-compile');
+        const viewRenderedRadio = document.getElementById('view-rendered');
+        const viewHtmlRadio = document.getElementById('view-html');
+        const statusElement = document.getElementById('status');
+
+        // LaTeX Example
+        const latexExample = `\\documentclass{article}
+\\usepackage[utf8]{inputenc}
+
+\\usepackage{biblatex}
+\\usepackage{csquotes}
+\\usepackage{graphicx}
+
+\\title{This is your template for Nordic Machine Intelligence}
+\\author{First B. Author\\thanks{Department, University, City,
+    Country}, Second C. Coauthor\\thanks{Company, City,
+    Country} and Last Author\\thanks{E-mail any correspondence to:
+  myname@domain.com}}
+\\date{\\today}
+
+\\addbibresource{demo.bib}
+
+\\begin{document}
+\\maketitle
+
+\\begin{abstract}
+  These are guidelines for preparing papers for the \\emph{Nordic Machine Intelligence}. The journal accepts original research
+  papers and review articles within the broad field of robotics and artificial intelligence. Use this document as a template if you are using
+  \\LaTeX; otherwise, use this document as an
+  instruction set. The paper size is A4 (21 × 29.7\\,cm).
+
+  \\keywords{artificial intelligence; machine learning; deep learning; robotics}
+\\end{abstract}
+
+\\section{Introduction}
+This document is a template for \\LaTeX.
+Please use the electronic version of this document as a
+template when you produce your manuscript for submission to the
+\\emph{Nordic Machine Intelligence}. The paper size is A4 (21 ×
+29.7~cm).
+
+The introduction section of your paper should include the necessary
+background information, including an adequate review of earlier
+findings and the justification for conducting this study.
+
+\\section{Materials and methods}
+The margins in this document are set to 2.5\\,cm for the top and 1.5\\,cm
+for the sides and bottom. The main body of the manuscript is in two
+columns separated by a 1\\,cm. The line spacing is 1.1, and the
+references list has 3\\,pt spacing between each reference.
+
+Body text is \\emph{Computer Modern Bright} (which is quite similar to
+Calibri) at 10\\,pt. Level~1 headings are in bold and level~2
+headings are in italic.
+
+In the materials and methods section, please describe all necessary
+details on how the study was performed. Do not
+include any discussions of the work in this section. Enough
+information should be given so that other researchers can reproduce
+your study.
+
+\\section{Results}
+All figures should be numbered consecutively with the figure legend
+indented 0.5\\,cm on each side. See figure~\\ref{box-plot} for an example.
+Figures may be in color or black and white and must be of such quality
+that they produce clear and sharp printouts on an ordinary (color)
+laser printer.
+
+\\subsection{What to include}
+Use this section to present the results from the measurements or
+studies that were described in the last section, but without going
+into any discussion about the results.
+
+\\begin{figure}[htp]
+  \\centering
+  \\includegraphics[width=0.7\\columnwidth]{test-ill}
+  \\caption{Box-plot showing median value (line), mean value (cross),
+    middle 50\\,\\% (box) and smallest and largest point within
+    1.5~interquartiles from the box (whiskers) of all measurements
+    on days A, B and~C.\\label{box-plot}}
+\\end{figure}
+
+\\section{Discussion}
+Now you can discuss your results. Emphasize the new and important
+aspects of the study and the conclusions that follow from them. Do not
+repeat in detail data or other information given in the Introduction
+or the Results section. After this section there may be sections
+called Conclusion and Acknowledgments. The last section is References.
+
+\\subsection{Reference style}
+The journal of \\emph{Nordic Machine Intelligence} uses primarily the Vancouver
+style of references with numbers in square brackets in the text and a
+numbered list in the Reference section.\\cite{biomed-req} However, using the
+Harvard reference style will also be accepted in some cases.
+
+\\subsection{Conflict of interest}
+Authors state no conflict of interest. (Either keep this sentence or
+describe any comflict of interest.)
+
+\\newpage
+\\nocite{*}
+\\printbibliography
+\\end{document}`;
+
+        // Set example code
+        editor.setValue("");
+
+        // Event Listeners
+        compileBtn.addEventListener('click', compileLatex);
+        exampleBtn.addEventListener('click', loadExample);
+        clearBtn.addEventListener('click', clearEditor);
+        consoleToggle.addEventListener('click', toggleConsole);
+        autoCompileCheckbox.addEventListener('change', toggleAutoCompile);
+        viewRenderedRadio.addEventListener('change', updatePreviewMode);
+        viewHtmlRadio.addEventListener('change', updatePreviewMode);
+
+        // Enable auto-compile by default with debouncing
+        let autoCompileTimeout;
+        editor.session.on('change', function() {
+            if (autoCompileCheckbox.checked) {
+                clearTimeout(autoCompileTimeout);
+                autoCompileTimeout = setTimeout(compileLatex, 1000);
+                updateStatus('Zmiany...');
+            }
+        });
+
+        // Functions
+        function compileLatex() {
+            updateStatus('Kompilacja...');
+
+            try {
+                const latexCode = editor.getValue();
+                const htmlOutput = parseLatex(latexCode);
+
+                if (viewRenderedRadio.checked) {
+                    previewElement.innerHTML = htmlOutput;
+                    // Refresh MathJax
+                    if (window.MathJax) {
+                        MathJax.typesetPromise([previewElement]).catch(err => {
+                            logToConsole(`Error typesetting math: ${err.message}`, 'error');
+                        });
+                    }
+                } else {
+                    // Show raw HTML
+                    previewElement.textContent = htmlOutput;
+                }
+
+                logToConsole('Kompilacja zakończona pomyślnie', 'success');
+                updateStatus('Gotowy');
+            } catch (error) {
+                logToConsole(`Błąd kompilacji: ${error.message}`, 'error');
+                updateStatus('Błąd');
+            }
+        }
+
+        function parseLatex(latexCode) {
+            // Log start of parsing
+            logToConsole('Rozpoczynanie parsowania LaTeX...', 'info');
+
+            // Parse document class and packages
+            const documentClass = latexCode.match(/\\documentclass\{([^}]+)\}/);
+            const packages = latexCode.match(/\\usepackage(\[[^]]*\])?\{([^}]+)\}/g);
+
+            // Log detected document class and packages
+            if (documentClass) {
+                logToConsole(`Wykryto klasę dokumentu: ${documentClass[1]}`, 'info');
+            }
+
+            if (packages) {
+                logToConsole(`Wykryto ${packages.length} pakietów`, 'info');
+            }
+
+            // Extract document content (between \begin{document} and \end{document})
+            const documentMatch = latexCode.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/);
+
+            if (!documentMatch) {
+                throw new Error('Nie znaleziono zawartości dokumentu. Upewnij się, że dokument zawiera \\begin{document} i \\end{document}');
+            }
+
+            const documentContent = documentMatch[1];
+
+            // Extract metadata
+            const titleMatch = latexCode.match(/\\title\{([^}]+)\}/);
+            const authorMatch = latexCode.match(/\\author\{([^}]+)\}/);
+            const dateMatch = latexCode.match(/\\date\{([^}]+)\}/);
+
+            // Start building HTML output
+            let html = '<div class="latex-document">';
+
+            // Process \maketitle
+            if (documentContent.includes('\\maketitle')) {
+                html += '<div class="title-section">';
+                if (titleMatch) {
+                    html += `<div class="title">${processInlineCommands(titleMatch[1])}</div>`;
+                }
+                if (authorMatch) {
+                    // Process authors with affiliations
+                    let authorContent = authorMatch[1];
+                    authorContent = authorContent.replace(/\\affiliation\{([^}]+)\}/g, '<span class="affiliation">$1</span>');
+                    html += `<div class="author">${processInlineCommands(authorContent)}</div>`;
+                }
+                if (dateMatch) {
+                    html += `<div class="date">${processInlineCommands(dateMatch[1])}</div>`;
+                }
+                html += '</div>';
+            }
+
+            // Process abstract
+            const abstractMatch = documentContent.match(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/);
+            if (abstractMatch) {
+                const abstractContent = abstractMatch[1];
+                const keywordsMatch = abstractContent.match(/\\keywords\{([^}]+)\}/);
+
+                let processedAbstract = abstractContent;
+                if (keywordsMatch) {
+                    processedAbstract = processedAbstract.replace(/\\keywords\{([^}]+)\}/, '');
+                }
+
+                html += '<div class="abstract">';
+                html += `<strong>Abstract</strong>: ${processContent(processedAbstract)}`;
+
+                if (keywordsMatch) {
+                    html += `<div class="keywords"><strong>Keywords</strong>: ${processInlineCommands(keywordsMatch[1])}</div>`;
+                }
+
+                html += '</div>';
+            }
+
+            // Process main content
+            let mainContent = documentContent;
+
+            // Remove processed parts to avoid duplication
+            if (documentContent.includes('\\maketitle')) {
+                mainContent = mainContent.replace('\\maketitle', '');
+            }
+            if (abstractMatch) {
+                mainContent = mainContent.replace(abstractMatch[0], '');
+            }
+
+            // Apply two-column layout if the document class has two columns
+            // For this example, we'll assume elbioimp2 has two columns
+            if (documentClass && documentClass[1] === 'elbioimp2') {
+                html += '<div class="two-column">';
+            }
+
+            // Process the main content
+            html += processContent(mainContent);
+
+            // Close two-column div if needed
+            if (documentClass && documentClass[1] === 'elbioimp2') {
+                html += '</div>';
+            }
+
+            // Close the document div
+            html += '</div>';
+
+            return html;
+        }
+
+        function processContent(content) {
+            let processedContent = content;
+
+            // Process sections
+            processedContent = processedContent.replace(/\\section\{([^}]+)\}/g, '<h2>$1</h2>');
+            processedContent = processedContent.replace(/\\subsection\{([^}]+)\}/g, '<h3>$1</h3>');
+            processedContent = processedContent.replace(/\\subsubsection\{([^}]+)\}/g, '<h4>$1</h4>');
+
+            // Process figures
+            processedContent = processedContent.replace(/\\begin\{figure\}[\s\S]*?\\includegraphics(?:\[([^]]*)\])?\{([^}]+)\}[\s\S]*?\\caption\{([^}]*)\}[\s\S]*?\\end\{figure\}/g,
+                (match, options, path, caption) => {
+                    return `<figure class="figure">
+                                    <img src="/api/placeholder/400/320" alt="${path}" />
+                                    <figcaption class="caption">Figure: ${processInlineCommands(caption)}</figcaption>
+                                </figure>`;
+                }
+            );
+
+            // Process citations
+            processedContent = processedContent.replace(/\\cite\{([^}]+)\}/g, '<span class="citation">[1]</span>');
+
+            // Process references
+            processedContent = processedContent.replace(/\\ref\{([^}]+)\}/g, '<span class="reference">1</span>');
+
+            // Process bibliography
+            if (processedContent.includes('\\printbibliography')) {
+                processedContent = processedContent.replace('\\printbibliography',
+                    `<div class="bibliography">
+                            <h2>References</h2>
+                            <div class="bibliography-item">[1] Reference item example.</div>
+                        </div>`
+                );
+            }
+
+            // Process inline commands
+            processedContent = processInlineCommands(processedContent);
+
+            // Split into paragraphs (handle newlines)
+            const paragraphs = processedContent.split(/\n{2,}/);
+            return paragraphs.map(p => {
+                if (p.trim().startsWith('<h') || p.trim().startsWith('<figure') || p.trim().startsWith('<div')) {
+                    return p;
+                } else if (p.trim()) {
+                    return `<p>${p.trim()}</p>`;
+                }
+                return '';
+            }).join('\n');
+        }
+
+        function processInlineCommands(text) {
+            let processedText = text;
+
+            // Process emphasis
+            processedText = processedText.replace(/\\emph\{([^}]+)\}/g, '<em>$1</em>');
+            processedText = processedText.replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>');
+            processedText = processedText.replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>');
+
+            // Process LaTeX command
+            processedText = processedText.replace(/\\LaTeX/g, 'LaTeX');
+
+            // Process special characters
+            processedText = processedText.replace(/\\%/g, '%');
+            processedText = processedText.replace(/\\_/g, '_');
+            processedText = processedText.replace(/\\&/g, '&');
+
+            // Process spacing commands
+            processedText = processedText.replace(/\\,/g, ' ');
+            processedText = processedText.replace(/~/g, ' ');
+
+            // Process math environments
+            processedText = processedText.replace(/\$([^$]+)\$/g, '\\($1\\)');
+
+            return processedText;
+        }
+
+        function loadExample() {
+            editor.setValue(latexExample);
+            editor.clearSelection();
+            compileLatex();
+            logToConsole('Przykład załadowany', 'info');
+        }
+
+        function clearEditor() {
+            editor.setValue('');
+            logToConsole('Edytor wyczyszczony', 'info');
+        }
+
+        function toggleConsole() {
+            consoleElement.classList.toggle('active');
+            if (consoleElement.classList.contains('active')) {
+                consoleToggle.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        Ukryj konsolę
+                    `;
+            } else {
+                consoleToggle.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                        Konsola
+                    `;
+            }
+        }
+
+        function toggleAutoCompile() {
+            if (autoCompileCheckbox.checked) {
+                logToConsole('Auto-kompilacja włączona', 'info');
+            } else {
+                logToConsole('Auto-kompilacja wyłączona', 'info');
+            }
+        }
+
+        function updatePreviewMode() {
+            compileLatex();
+        }
+
+        function logToConsole(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.createElement('div');
+            logElement.classList.add(type);
+            logElement.textContent = `[${timestamp}] ${message}`;
+            consoleContent.appendChild(logElement);
+            consoleContent.scrollTop = consoleContent.scrollHeight;
+        }
+
+        function updateStatus(status) {
+            statusElement.textContent = status;
+        }
+
+        // Initialize
+        loadExample();
+    });
+</script>
+</body>
+</html>
