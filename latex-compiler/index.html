@@ -3,19 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kompilator LaTeX Online</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.22.0/ace.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>LaTeX Web Compiler Pro</title>
+
+    <!-- MathJax for proper math rendering -->
+    <script type="text/javascript">
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                packages: ['base', 'ams', 'noerrors', 'noundefined']
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+
+    <!-- D3.js for better visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Chart.js with additional plugins for improved plots -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+
     <style>
+        /* Reset and variables - keeping the same variables for consistency */
         :root {
-            --primary: #1a73e8;
-            --primary-dark: #1557b0;
-            --light-gray: #f5f5f5;
-            --dark-gray: #333;
-            --mid-gray: #ddd;
-            --paper-color: #fff;
+            --primary-color: #0055a4;
+            --secondary-color: #003366;
+            --bg-color: #f5f5f5;
             --text-color: #333;
-            --font-size: 16px;
+            --border-color: #ccc;
+            --paper-width: 210mm;
+            --paper-height: 297mm;
+            --paper-margin: 2.5cm;
+            --heading-color: #00468b;
+            --error-color: #d32f2f;
+            --warning-color: #f57c00;
+            --success-color: #388e3c;
         }
 
         * {
@@ -25,784 +57,2591 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: var(--font-size);
-            line-height: 1.5;
+            font-family: "Latin Modern Roman", Georgia, serif;
+            line-height: 1.6;
             color: var(--text-color);
-            background-color: var(--light-gray);
-            padding: 1rem;
-        }
-
-        header {
-            background-color: var(--dark-gray);
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 5px 5px 0 0;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            margin: 0;
-        }
-
-        .container {
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            max-width: 1600px;
-            margin: 0 auto;
-            height: calc(100vh - 2rem);
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 100vh;
             overflow: hidden;
         }
 
-        .toolbar {
+        /* Header styling */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
             display: flex;
-            padding: 0.5rem;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid var(--mid-gray);
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--secondary-color);
         }
 
-        .toolbar button {
-            padding: 0.5rem 1rem;
-            margin-right: 0.5rem;
-            background-color: var(--primary);
-            color: white;
+        header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Button styling */
+        button {
+            padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 500;
-            display: flex;
-            align-items: center;
+            background-color: white;
+            color: var(--primary-color);
+            transition: all 0.2s;
         }
 
-        .toolbar button:hover {
-            background-color: var(--primary-dark);
+        button:hover {
+            background-color: #f0f0f0;
         }
 
-        .toolbar button svg {
-            margin-right: 0.25rem;
-        }
-
-        .toolbar select {
-            padding: 0.5rem;
-            margin-right: 0.5rem;
-            border: 1px solid var(--mid-gray);
-            border-radius: 4px;
-        }
-
-        .content {
+        /* Main container layout */
+        .main-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
 
-        .editor-container {
-            width: 50%;
+        /* Editor panel */
+        .editor-panel {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--mid-gray);
+            border-right: 1px solid var(--border-color);
+            background-color: white;
         }
 
         .editor-header {
-            padding: 0.5rem;
-            background-color: #f5f5f5;
-            border-bottom: 1px solid var(--mid-gray);
-            font-weight: 600;
-        }
-
-        #editor {
-            flex: 1;
-            font-size: 14px;
-        }
-
-        .preview-container {
-            width: 50%;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .preview-header {
-            padding: 0.5rem;
-            background-color: #f5f5f5;
-            border-bottom: 1px solid var(--mid-gray);
-            font-weight: 600;
+            padding: 10px;
+            background-color: #eee;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .preview-options {
-            display: flex;
-            align-items: center;
-        }
-
-        .preview-options label {
-            margin-right: 0.5rem;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .preview-options input {
-            margin-right: 0.25rem;
-        }
-
-        #preview {
-            flex: 1;
-            padding: 2rem;
-            overflow: auto;
-            background-color: var(--paper-color);
-        }
-
-        /* LaTeX Document Styles */
-        .latex-document {
-            font-family: "Computer Modern", "Times New Roman", serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            color: #111;
-            line-height: 1.6;
-        }
-
-        .latex-document .title {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .latex-document .author {
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .latex-document .abstract {
-            font-size: 0.9rem;
-            margin: 1rem 2rem 2rem;
-            font-style: italic;
-        }
-
-        .latex-document .keywords {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        .latex-document h2 {
+        .editor-header h2 {
             font-size: 18px;
-            font-weight: bold;
-            margin: 1.5rem 0 1rem;
+            margin: 0;
         }
 
-        .latex-document h3 {
-            font-size: 16px;
-            font-style: italic;
-            font-weight: normal;
-            margin: 1.2rem 0 0.8rem;
+        #latex-editor {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            resize: none;
+            outline: none;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow: auto;
         }
 
-        .latex-document p {
-            margin-bottom: 1rem;
+        /* Preview panel */
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+        }
+
+        .preview-header {
+            padding: 10px;
+            background-color: #eee;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .preview-container {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* LaTeX paper styling - adjusted to match LaTeX output */
+        .latex-paper {
+            width: var(--paper-width);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            padding: var(--paper-margin);
+            font-family: 'Latin Modern Roman', Georgia, serif;
+            line-height: 1.5;
+            position: relative;
+            color: #000;
             text-align: justify;
+            overflow-wrap: break-word;
+            font-size: 11pt;
         }
 
-        .latex-document figure {
+        /* Title page styling */
+        .title-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             text-align: center;
-            margin: 1.5rem 0;
+            min-height: calc(var(--paper-height) - 2 * var(--paper-margin));
+            margin-bottom: 40px;
         }
 
-        .latex-document figcaption {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        .title {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 20px;
         }
 
-        .latex-document .bibliography {
-            margin-top: 2rem;
+        .subtitle {
+            font-size: 18pt;
+            margin-bottom: 40px;
         }
 
-        .latex-document .bibliography-item {
-            text-indent: -1.5rem;
-            padding-left: 1.5rem;
-            margin-bottom: 0.5rem;
+        .author {
+            font-size: 16pt;
+            margin-top: 40px;
+            margin-bottom: 20px;
         }
 
-        .latex-document .two-column {
-            column-count: 2;
-            column-gap: 2rem;
+        .institution {
+            font-size: 12pt;
+            margin-top: auto;
+            margin-bottom: 60px;
+            line-height: 1.5;
         }
 
-        .latex-document em {
+        /* TOC styling */
+        .toc, .lof, .lot {
+            margin-bottom: 40px;
+            page-break-after: always;
+        }
+
+        .toc h1, .lof h1, .lot h1 {
+            font-size: 18pt;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .toc-entry {
+            display: flex;
+            margin-bottom: 6px;
+            align-items: baseline;
+        }
+
+        .toc-chapter {
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .toc-section {
+            margin-left: 20px;
+        }
+
+        .toc-subsection {
+            margin-left: 40px;
+            font-size: 0.9em;
+        }
+
+        .toc-dots {
+            flex: 1;
+            border-bottom: 1px dotted #999;
+            margin: 0 5px;
+        }
+
+        /* Chapter and section styling */
+        .chapter {
+            margin-top: 30px;
+            counter-increment: chapter;
+            counter-reset: section;
+            page-break-before: always;
+        }
+
+        .chapter-title {
+            font-size: 18pt;
+            margin-bottom: 20px;
+            color: var(--heading-color);
+        }
+
+        .chapter-title::before {
+            content: "Rozdział " counter(chapter) "\A";
+            font-size: 14pt;
+            white-space: pre;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            margin-top: 20px;
+            counter-increment: section;
+            counter-reset: subsection;
+            page-break-after: avoid;
+        }
+
+        .section-title {
+            font-size: 14pt;
+            margin-bottom: 15px;
+            color: var(--heading-color);
+        }
+
+        .section-title::before {
+            content: counter(chapter) "." counter(section) " ";
+        }
+
+        .subsection {
+            margin-top: 15px;
+            counter-increment: subsection;
+            page-break-after: avoid;
+        }
+
+        .subsection-title {
+            font-size: 12pt;
+            margin-bottom: 10px;
+            color: var(--heading-color);
+        }
+
+        .subsection-title::before {
+            content: counter(chapter) "." counter(section) "." counter(subsection) " ";
+        }
+
+        /* Math display - adjusted for better rendering */
+        .math-display {
+            display: block;
+            margin: 15px 0;
+            padding: 10px 0;
+            position: relative;
+            counter-increment: equation;
+            overflow-x: auto;
+            page-break-inside: avoid;
+            text-align: center;
+        }
+
+        .math-number::after {
+            content: "(" counter(chapter) "." counter(equation) ")";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* LaTeX environments styling */
+        .theorem, .lemma, .definition, .example, .corollary, .proposition, .remark {
+            margin: 15px 0;
+            padding: 10px 15px;
+            border-left: 3px solid;
+            page-break-inside: avoid;
+        }
+
+        .theorem, .lemma, .corollary, .proposition {
+            border-left-color: #2196f3;
+            background-color: #e3f2fd;
+        }
+
+        .definition {
+            border-left-color: #4caf50;
+            background-color: #e8f5e9;
+        }
+
+        .example {
+            border-left-color: #ff9800;
+            background-color: #fff3e0;
+        }
+
+        .remark {
+            border-left-color: #9e9e9e;
+            background-color: #f5f5f5;
+        }
+
+        .theorem-header, .lemma-header, .definition-header, .example-header,
+        .corollary-header, .proposition-header, .remark-header {
+            font-weight: bold;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .proof {
+            margin: 15px 0;
+            padding: 10px;
+            position: relative;
+            page-break-inside: avoid;
+        }
+
+        .proof::before {
+            content: "Dowód:";
+            font-style: italic;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .proof::after {
+            content: "□";
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+        }
+
+        /* List styling */
+        ul.itemize, ol.enumerate {
+            margin: 10px 0 10px 20px;
+        }
+
+        ul.itemize li, ol.enumerate li {
+            margin-bottom: 5px;
+        }
+
+        /* Figure and table styling */
+        figure {
+            margin: 20px 0;
+            text-align: center;
+            counter-increment: figure;
+            page-break-inside: avoid;
+        }
+
+        figure img {
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .figure-content {
+            width: 100%;
+            margin: 0 auto;
+            height: 300px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+
+        figcaption {
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        figcaption::before {
+            content: "Rysunek " counter(chapter) "." counter(figure) ": ";
+            font-weight: bold;
+        }
+
+        .table-container {
+            margin: 20px 0;
+            counter-increment: table;
+            overflow-x: auto;
+            page-break-inside: avoid;
+        }
+
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            min-width: 50%;
+        }
+
+        caption {
+            margin-bottom: 10px;
             font-style: italic;
         }
 
-        .latex-document .figure {
+        caption::before {
+            content: "Tabela " counter(chapter) "." counter(table) ": ";
+            font-weight: bold;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+        }
+
+        th {
+            background-color: #f5f5f5;
+        }
+
+        /* Bibliography styling */
+        .bibliography {
+            margin-top: 30px;
+            page-break-before: always;
+        }
+
+        .bibliography h1 {
+            font-size: 18pt;
+            margin-bottom: 20px;
             text-align: center;
-            margin: 1.5rem 0;
+            font-weight: normal;
         }
 
-        .latex-document .figure img {
-            max-width: 100%;
+        .bibliography-item {
+            margin-bottom: 10px;
+            padding-left: 2em;
+            text-indent: -2em;
         }
 
-        .latex-document .figure .caption {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        /* Error messages */
+        .error-message {
+            background-color: #ffebee;
+            color: var(--error-color);
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 5px solid var(--error-color);
+            border-radius: 3px;
         }
 
-        .console {
-            background-color: #222;
-            color: #eee;
-            padding: 0.5rem;
+        .warning-message {
+            background-color: #fff8e1;
+            color: var(--warning-color);
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 5px solid var(--warning-color);
+            border-radius: 3px;
+        }
+
+        /* Debug panel */
+        #debug-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #333;
+            color: white;
             font-family: monospace;
-            height: 100px;
+            font-size: 12px;
+            max-height: 30vh;
             overflow-y: auto;
             display: none;
+            z-index: 100;
         }
 
-        .console.active {
+        #debug-panel.visible {
             display: block;
         }
 
-        .error {
-            color: #ff6b6b;
+        #debug-panel div {
+            padding: 4px 10px;
+            border-bottom: 1px solid #444;
         }
 
-        .success {
-            color: #51cf66;
+        /* Status bar */
+        #status-bar {
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+            font-size: 12px;
         }
 
-        .warning {
-            color: #fcc419;
+        #status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
         }
 
-        @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
+        #status-indicator.success { background-color: var(--success-color); }
+        #status-indicator.warning { background-color: var(--warning-color); }
+        #status-indicator.error { background-color: var(--error-color); }
+        #status-indicator.loading {
+            background-color: #2196f3;
+            animation: pulsate 1.5s infinite;
+        }
+
+        @keyframes pulsate {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Fullscreen mode */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            z-index: 999;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        /* Syntax highlighting */
+        .latex-keyword { color: #0000FF; }
+        .latex-command { color: #008800; }
+        .latex-bracket { color: #880000; }
+        .latex-comment { color: #808080; }
+
+        /* Algorithm styling - improved */
+        .algorithm {
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            page-break-inside: avoid;
+        }
+
+        .algorithm-header {
+            padding: 8px 12px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+
+        .algorithm-content {
+            padding: 10px;
+        }
+
+        .algorithm-steps {
+            list-style-type: decimal;
+            margin-left: 20px;
+        }
+
+        .algorithm-require, .algorithm-ensure {
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        /* Print settings */
+        @media print {
+            body, .main-container, .preview-container {
+                margin: 0;
+                padding: 0;
+                overflow: visible;
+                display: block;
+                background-color: white;
             }
 
-            .editor-container, .preview-container {
+            header, .editor-panel, .preview-header, #debug-panel, #status-bar {
+                display: none;
+            }
+
+            .preview-panel {
+                display: block;
+                height: auto;
+                overflow: visible;
+            }
+
+            .preview-container {
+                display: block;
+                padding: 0;
+                overflow: visible;
+            }
+
+            .latex-paper {
+                box-shadow: none;
+                margin: 0 auto;
+                padding: 0;
+                overflow: visible;
                 width: 100%;
-                height: 50%;
             }
 
-            .editor-container {
-                border-right: none;
-                border-bottom: 1px solid var(--mid-gray);
+            .chapter {
+                page-break-before: always;
             }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .toc, .lof, .lot {
+                page-break-after: always;
+            }
+
+            #print-document-container {
+                display: block !important;
+            }
+        }
+
+        #print-document-container {
+            display: none;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>Kompilator LaTeX Online</h1>
-        <div>
-            <span id="status">Gotowy</span>
-        </div>
-    </header>
-
-    <div class="toolbar">
-        <button id="compile-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                <polyline points="16 7 22 7 22 13"></polyline>
-            </svg>
-            Kompiluj
-        </button>
-        <button id="example-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            Przykład
-        </button>
-        <button id="clear-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-            Wyczyść
-        </button>
-        <button id="console-toggle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="4 17 10 11 4 5"></polyline>
-                <line x1="12" y1="19" x2="20" y2="19"></line>
-            </svg>
-            Konsola
-        </button>
+<header>
+    <h1>LaTeX Web Compiler Pro</h1>
+    <div class="header-buttons">
+        <button id="compile-btn">Kompiluj</button>
+        <button id="fullscreen-btn">Pełny ekran</button>
+        <button id="debug-btn">Ukryj debug</button>
     </div>
+</header>
 
-    <div class="content">
-        <div class="editor-container">
-            <div class="editor-header">Kod LaTeX</div>
-            <div id="editor"></div>
+<div class="main-container">
+    <div class="editor-panel">
+        <div class="editor-header">
+            <h2>Kod LaTeX</h2>
+            <button id="clear-btn">Wyczyść</button>
         </div>
+        <textarea id="latex-editor">% Wklej swój kod LaTeX tutaj
+\documentclass[11pt,a4paper,twoside,openright]{report}
 
+% Pakiety podstawowe
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[polish]{babel}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\Huge\bfseries Analiza złożonych układów dynamicznych\par}
+\vspace{1.5cm}
+{\LARGE z zastosowaniem metod nieliniowych\par}
+\vspace{2cm}
+{\Large Jan Kowalski\par}
+\vfill
+{\large Instytut Badań Zaawansowanych\\
+Politechnika Warszawska\\
+\today\par}
+\end{titlepage}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter{Wprowadzenie do układów dynamicznych}
+
+\section{Podstawowe definicje i twierdzenia}
+
+\begin{definition}
+Układem dynamicznym nazywamy układ, którego stan zmienia się w czasie zgodnie z pewnym określonym prawem. Formalnie, układ dynamiczny to trójka $(X, T, \Phi)$, gdzie:
+\begin{itemize}
+    \item $X$ jest przestrzenią stanów,
+    \item $T$ jest zbiorem parametrów czasowych,
+    \item $\Phi: X \times T \to X$ jest funkcją ewolucji.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Poincaré-Bendixson]
+Niech $f \in C^1(\mathbb{R}^2, \mathbb{R}^2)$ i niech $\gamma^+$ będzie dodatnią półorbitą rozwiązania układu $\dot{x} = f(x)$. Jeśli $\gamma^+$ jest ograniczona i zawarta w skończonym obszarze zawierającym co najwyżej skończoną liczbę punktów stacjonarnych, to zachodzi jeden z poniższych przypadków:
+\begin{enumerate}
+    \item $\gamma^+$ jest orbitą okresową,
+    \item $\gamma^+$ dąży do orbity okresowej dla $t \to \infty$,
+    \item $\gamma^+$ dąży do punktu stacjonarnego dla $t \to \infty$.
+\end{enumerate}
+\end{theorem}
+
+\section{Układy hamiltonowskie}
+
+Układy hamiltonowskie to szczególna klasa układów dynamicznych, które są opisane przez funkcję Hamiltona $H(q, p)$, gdzie $q$ reprezentuje położenie, a $p$ pęd. Równania ruchu są dane przez:
+
+\begin{align}
+\dot{q}_i &= \frac{\partial H}{\partial p_i}\\
+\dot{p}_i &= -\frac{\partial H}{\partial q_i}
+\end{align}
+
+\end{document}
+            </textarea>
+    </div>
+    <div class="preview-panel">
+        <div class="preview-header">
+            <h2>Skompilowany dokument</h2>
+            <button id="print-btn">Drukuj</button>
+        </div>
         <div class="preview-container">
-            <div class="preview-header">
-                <span>Podgląd</span>
-                <div class="preview-options">
-                    <label>
-                        <input type="checkbox" id="auto-compile" checked>
-                        Auto-kompilacja
-                    </label>
-                    <label>
-                        <input type="radio" name="view-mode" id="view-rendered" checked>
-                        Renderowanie
-                    </label>
-                    <label>
-                        <input type="radio" name="view-mode" id="view-html">
-                        HTML
-                    </label>
-                </div>
-            </div>
-            <div id="preview"></div>
+            <div id="output" class="latex-paper"></div>
         </div>
-    </div>
-
-    <div class="console" id="console">
-        <div class="console-content"></div>
     </div>
 </div>
 
+<div id="debug-panel"></div>
+
+<div id="status-bar">
+    <div>
+        <span id="status-indicator" class="success"></span>
+        <span id="status-message">Gotowy do kompilacji</span>
+    </div>
+    <div id="render-time"></div>
+</div>
+
+<!-- Kontener do drukowania całego dokumentu -->
+<div id="print-document-container"></div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Ace Editor - with safety check
-        let editor;
-        try {
-            editor = ace.edit("editor");
-            editor.setTheme("ace/theme/textmate");
-            editor.session.setMode("ace/mode/latex");
-            editor.setOptions({
-                fontSize: "14px",
-                showPrintMargin: false,
-                wrap: true
-            });
-        } catch (e) {
-            console.error("Nie można zainicjalizować edytora Ace", e);
-            document.getElementById('editor').innerHTML = '<textarea style="width:100%;height:100%;font-family:monospace;"></textarea>';
-            editor = {
-                getValue: function() {
-                    return document.querySelector('#editor textarea').value;
-                },
-                setValue: function(val) {
-                    document.querySelector('#editor textarea').value = val;
-                },
-                clearSelection: function() {},
-                session: { on: function() {} }
+    // Główna klasa kompilatora LaTeX
+    class LaTeXCompiler {
+        constructor() {
+            // Liczniki dla numeracji
+            this.counters = {
+                chapter: 0,
+                section: 0,
+                subsection: 0,
+                figure: 0,
+                table: 0,
+                equation: 0,
+                theorem: 0,
+                lemma: 0,
+                definition: 0,
+                example: 0,
+                proposition: 0,
+                corollary: 0,
+                algorithm: 0
             };
+
+            // Dane dokumentu
+            this.doc = {
+                class: '',
+                options: [],
+                title: '',
+                author: '',
+                date: '',
+                hasTitlePage: false,
+                hasTOC: false,
+                hasLOF: false,
+                hasLOT: false
+            };
+
+            // Referencje
+            this.labels = {};
+
+            // Spisy
+            this.toc = [];
+            this.lof = [];
+            this.lot = [];
+
+            // Ustawienia debugowania
+            this.debug = true;
+
+            // Pomocnicze zmienne dla renderera
+            this.plots = [];
         }
 
-        // DOM Elements
-        const previewElement = document.getElementById('preview');
-        const compileBtn = document.getElementById('compile-btn');
-        const exampleBtn = document.getElementById('example-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const consoleToggle = document.getElementById('console-toggle');
-        const consoleElement = document.getElementById('console');
-        const consoleContent = document.querySelector('.console-content');
-        const autoCompileCheckbox = document.getElementById('auto-compile');
-        const viewRenderedRadio = document.getElementById('view-rendered');
-        const viewHtmlRadio = document.getElementById('view-html');
-        const statusElement = document.getElementById('status');
-
-        // LaTeX Example
-        const latexExample = `\\documentclass{article}
-\\usepackage[utf8]{inputenc}
-
-\\usepackage{biblatex}
-\\usepackage{csquotes}
-\\usepackage{graphicx}
-
-\\title{This is your template for Nordic Machine Intelligence}
-\\author{First B. Author\\thanks{Department, University, City,
-    Country}, Second C. Coauthor\\thanks{Company, City,
-    Country} and Last Author\\thanks{E-mail any correspondence to:
-  myname@domain.com}}
-\\date{\\today}
-
-\\addbibresource{demo.bib}
-
-\\begin{document}
-\\maketitle
-
-\\begin{abstract}
-  These are guidelines for preparing papers for the \\emph{Nordic Machine Intelligence}. The journal accepts original research
-  papers and review articles within the broad field of robotics and artificial intelligence. Use this document as a template if you are using
-  \\LaTeX; otherwise, use this document as an
-  instruction set. The paper size is A4 (21 × 29.7\\,cm).
-
-  \\keywords{artificial intelligence; machine learning; deep learning; robotics}
-\\end{abstract}
-
-\\section{Introduction}
-This document is a template for \\LaTeX.
-Please use the electronic version of this document as a
-template when you produce your manuscript for submission to the
-\\emph{Nordic Machine Intelligence}. The paper size is A4 (21 ×
-29.7~cm).
-
-The introduction section of your paper should include the necessary
-background information, including an adequate review of earlier
-findings and the justification for conducting this study.
-
-\\section{Materials and methods}
-The margins in this document are set to 2.5\\,cm for the top and 1.5\\,cm
-for the sides and bottom. The main body of the manuscript is in two
-columns separated by a 1\\,cm. The line spacing is 1.1, and the
-references list has 3\\,pt spacing between each reference.
-
-Body text is \\emph{Computer Modern Bright} (which is quite similar to
-Calibri) at 10\\,pt. Level~1 headings are in bold and level~2
-headings are in italic.
-
-In the materials and methods section, please describe all necessary
-details on how the study was performed. Do not
-include any discussions of the work in this section. Enough
-information should be given so that other researchers can reproduce
-your study.
-
-\\section{Results}
-All figures should be numbered consecutively with the figure legend
-indented 0.5\\,cm on each side. See figure~\\ref{box-plot} for an example.
-Figures may be in color or black and white and must be of such quality
-that they produce clear and sharp printouts on an ordinary (color)
-laser printer.
-
-\\subsection{What to include}
-Use this section to present the results from the measurements or
-studies that were described in the last section, but without going
-into any discussion about the results.
-
-\\begin{figure}[htp]
-  \\centering
-  \\includegraphics[width=0.7\\columnwidth]{test-ill}
-  \\caption{Box-plot showing median value (line), mean value (cross),
-    middle 50\\,\\% (box) and smallest and largest point within
-    1.5~interquartiles from the box (whiskers) of all measurements
-    on days A, B and~C.\\label{box-plot}}
-\\end{figure}
-
-\\section{Discussion}
-Now you can discuss your results. Emphasize the new and important
-aspects of the study and the conclusions that follow from them. Do not
-repeat in detail data or other information given in the Introduction
-or the Results section. After this section there may be sections
-called Conclusion and Acknowledgments. The last section is References.
-
-\\subsection{Reference style}
-The journal of \\emph{Nordic Machine Intelligence} uses primarily the Vancouver
-style of references with numbers in square brackets in the text and a
-numbered list in the Reference section.\\cite{biomed-req} However, using the
-Harvard reference style will also be accepted in some cases.
-
-\\subsection{Conflict of interest}
-Authors state no conflict of interest. (Either keep this sentence or
-describe any comflict of interest.)
-
-\\newpage
-\\nocite{*}
-\\printbibliography
-\\end{document}`;
-
-        // Set example code
-        editor.setValue("");
-
-        // Event Listeners
-        compileBtn.addEventListener('click', compileLatex);
-        exampleBtn.addEventListener('click', loadExample);
-        clearBtn.addEventListener('click', clearEditor);
-        consoleToggle.addEventListener('click', toggleConsole);
-        autoCompileCheckbox.addEventListener('change', toggleAutoCompile);
-        viewRenderedRadio.addEventListener('change', updatePreviewMode);
-        viewHtmlRadio.addEventListener('change', updatePreviewMode);
-
-        // Enable auto-compile by default with debouncing
-        let autoCompileTimeout;
-        editor.session.on('change', function() {
-            if (autoCompileCheckbox.checked) {
-                clearTimeout(autoCompileTimeout);
-                autoCompileTimeout = setTimeout(compileLatex, 1000);
-                updateStatus('Zmiany...');
+        // Funkcja logująca do debug panelu
+        log(message) {
+            if (this.debug) {
+                const debugPanel = document.getElementById('debug-panel');
+                if (debugPanel) {
+                    const time = new Date().toTimeString().split(' ')[0];
+                    const logEntry = document.createElement('div');
+                    logEntry.textContent = `[${time}] ${message}`;
+                    debugPanel.appendChild(logEntry);
+                    debugPanel.scrollTop = debugPanel.scrollHeight;
+                }
+                console.log(message);
             }
-        });
+        }
 
-        // Functions
-        function compileLatex() {
-            updateStatus('Kompilacja...');
+        // Funkcja ustawiająca status
+        setStatus(type, message) {
+            const indicator = document.getElementById('status-indicator');
+            const statusMessage = document.getElementById('status-message');
+
+            if (indicator && statusMessage) {
+                indicator.className = type;
+                statusMessage.textContent = message;
+            }
+        }
+
+        // Resetowanie liczników i struktur danych
+        reset() {
+            for (const counter in this.counters) {
+                this.counters[counter] = 0;
+            }
+
+            this.doc = {
+                class: '',
+                options: [],
+                title: '',
+                author: '',
+                date: '',
+                hasTitlePage: false,
+                hasTOC: false,
+                hasLOF: false,
+                hasLOT: false
+            };
+
+            this.labels = {};
+            this.toc = [];
+            this.lof = [];
+            this.lot = [];
+            this.plots = [];
+        }
+
+        // Główna funkcja kompilująca
+        compile(latexCode) {
+            this.setStatus('loading', 'Kompilowanie...');
+            this.reset();
+            this.log('Rozpoczynanie kompilacji dokumentu');
 
             try {
-                const latexCode = editor.getValue();
-                const htmlOutput = parseLatex(latexCode);
+                // Parsowanie klasy dokumentu
+                this.parseDocumentClass(latexCode);
 
-                if (viewRenderedRadio.checked) {
-                    previewElement.innerHTML = htmlOutput;
-                    // Refresh MathJax
-                    if (window.MathJax) {
-                        MathJax.typesetPromise([previewElement]).catch(err => {
-                            logToConsole(`Error typesetting math: ${err.message}`, 'error');
-                        });
-                    }
-                } else {
-                    // Show raw HTML
-                    previewElement.textContent = htmlOutput;
+                // Sprawdzenie czy dokument jest poprawnie zdefiniowany
+                const docMatch = latexCode.match(/\\begin{document}([\s\S]*?)\\end{document}/);
+                if (!docMatch) {
+                    throw new Error('Nie znaleziono \\begin{document}...\\end{document}');
                 }
 
-                logToConsole('Kompilacja zakończona pomyślnie', 'success');
-                updateStatus('Gotowy');
+                // Wyodrębnienie zawartości dokumentu
+                const content = docMatch[1];
+
+                // Parsowanie metadanych
+                this.parseMetadata(latexCode);
+
+                // Sprawdzenie specjalnych stron i sekcji
+                this.checkSpecialSections(content);
+
+                // Przetwarzanie zawartości dokumentu
+                let html = '';
+
+                // Dodanie strony tytułowej
+                if (this.doc.hasTitlePage) {
+                    html += this.processTitlePage(content);
+                }
+
+                // Dodanie spisów
+                if (this.doc.hasTOC) {
+                    html += '<div class="toc"><h1>Spis treści</h1><div id="toc-content"></div></div>';
+                }
+
+                if (this.doc.hasLOF) {
+                    html += '<div class="lof"><h1>Spis rysunków</h1><div id="lof-content"></div></div>';
+                }
+
+                if (this.doc.hasLOT) {
+                    html += '<div class="lot"><h1>Spis tabel</h1><div id="lot-content"></div></div>';
+                }
+
+                // Przetwarzanie głównej treści
+                let mainContent = content;
+
+                // Usunięcie strony tytułowej z głównej treści
+                if (this.doc.hasTitlePage) {
+                    mainContent = this.removeTitlePage(mainContent);
+                }
+
+                // Usunięcie komend spisów
+                mainContent = mainContent.replace(/\\tableofcontents/g, '');
+                mainContent = mainContent.replace(/\\listoffigures/g, '');
+                mainContent = mainContent.replace(/\\listoftables/g, '');
+
+                // Przetwarzanie rozdziałów i sekcji
+                html += this.processStructure(mainContent);
+
+                this.log('Kompilacja zakończona pomyślnie');
+                this.setStatus('success', 'Dokument skompilowany pomyślnie');
+
+                return html;
             } catch (error) {
-                logToConsole(`Błąd kompilacji: ${error.message}`, 'error');
-                updateStatus('Błąd');
+                this.log(`Błąd kompilacji: ${error.message}`);
+                this.setStatus('error', `Błąd: ${error.message}`);
+                return `<div class="error-message">Błąd kompilacji: ${error.message}</div>`;
             }
         }
 
-        function parseLatex(latexCode) {
-            // Log start of parsing
-            logToConsole('Rozpoczynanie parsowania LaTeX...', 'info');
-
-            // Parse document class and packages
-            const documentClass = latexCode.match(/\\documentclass\{([^}]+)\}/);
-            const packages = latexCode.match(/\\usepackage(\[[^]]*\])?\{([^}]+)\}/g);
-
-            // Log detected document class and packages
-            if (documentClass) {
-                logToConsole(`Wykryto klasę dokumentu: ${documentClass[1]}`, 'info');
-            }
-
-            if (packages) {
-                logToConsole(`Wykryto ${packages.length} pakietów`, 'info');
-            }
-
-            // Extract document content (between \begin{document} and \end{document})
-            const documentMatch = latexCode.match(/\\begin\{document\}([\s\S]*)\\end\{document\}/);
-
-            if (!documentMatch) {
-                throw new Error('Nie znaleziono zawartości dokumentu. Upewnij się, że dokument zawiera \\begin{document} i \\end{document}');
-            }
-
-            const documentContent = documentMatch[1];
-
-            // Extract metadata
-            const titleMatch = latexCode.match(/\\title\{([^}]+)\}/);
-            const authorMatch = latexCode.match(/\\author\{([^}]+)\}/);
-            const dateMatch = latexCode.match(/\\date\{([^}]+)\}/);
-
-            // Start building HTML output
-            let html = '<div class="latex-document">';
-
-            // Process \maketitle
-            if (documentContent.includes('\\maketitle')) {
-                html += '<div class="title-section">';
-                if (titleMatch) {
-                    html += `<div class="title">${processInlineCommands(titleMatch[1])}</div>`;
+        // Parsowanie klasy dokumentu
+        parseDocumentClass(latexCode) {
+            try {
+                const docClassMatch = latexCode.match(/\\documentclass(?:\[([^\]]*)\])?\{([^}]*)\}/);
+                if (docClassMatch) {
+                    this.doc.class = docClassMatch[2];
+                    this.doc.options = docClassMatch[1] ? docClassMatch[1].split(',').map(opt => opt.trim()) : [];
+                    this.log(`Klasa dokumentu: ${this.doc.class}, opcje: ${this.doc.options.join(', ')}`);
+                } else {
+                    this.doc.class = 'article';
+                    this.log('Nie znaleziono klasy dokumentu, używam domyślnej: article');
                 }
-                if (authorMatch) {
-                    // Process authors with affiliations
-                    let authorContent = authorMatch[1];
-                    authorContent = authorContent.replace(/\\affiliation\{([^}]+)\}/g, '<span class="affiliation">$1</span>');
-                    html += `<div class="author">${processInlineCommands(authorContent)}</div>`;
-                }
+            } catch (error) {
+                this.log(`Błąd parsowania klasy dokumentu: ${error.message}`);
+                this.doc.class = 'article';
+            }
+        }
+
+        // Parsowanie metadanych
+        parseMetadata(latexCode) {
+            try {
+                // Tytuł
+                const titleMatch = latexCode.match(/\\title\{([^}]*)\}/);
+                this.doc.title = titleMatch ? this.cleanText(titleMatch[1]) : 'Dokument bez tytułu';
+
+                // Autor
+                const authorMatch = latexCode.match(/\\author\{([^}]*)\}/);
+                this.doc.author = authorMatch ? this.cleanText(authorMatch[1]) : '';
+
+                // Data
+                const dateMatch = latexCode.match(/\\date\{([^}]*)\}/);
                 if (dateMatch) {
-                    html += `<div class="date">${processInlineCommands(dateMatch[1])}</div>`;
-                }
-                html += '</div>';
-            }
-
-            // Process abstract
-            const abstractMatch = documentContent.match(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/);
-            if (abstractMatch) {
-                const abstractContent = abstractMatch[1];
-                const keywordsMatch = abstractContent.match(/\\keywords\{([^}]+)\}/);
-
-                let processedAbstract = abstractContent;
-                if (keywordsMatch) {
-                    processedAbstract = processedAbstract.replace(/\\keywords\{([^}]+)\}/, '');
-                }
-
-                html += '<div class="abstract">';
-                html += `<strong>Abstract</strong>: ${processContent(processedAbstract)}`;
-
-                if (keywordsMatch) {
-                    html += `<div class="keywords"><strong>Keywords</strong>: ${processInlineCommands(keywordsMatch[1])}</div>`;
+                    if (dateMatch[1] === '\\today') {
+                        this.doc.date = new Date().toLocaleDateString('pl-PL', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    } else {
+                        this.doc.date = this.cleanText(dateMatch[1]);
+                    }
+                } else {
+                    this.doc.date = new Date().toLocaleDateString('pl-PL', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
                 }
 
-                html += '</div>';
+                this.log(`Metadane: Tytuł="${this.doc.title}", Autor="${this.doc.author}", Data="${this.doc.date}"`);
+            } catch (error) {
+                this.log(`Błąd parsowania metadanych: ${error.message}`);
+            }
+        }
+
+        // Sprawdzenie specjalnych sekcji
+        checkSpecialSections(content) {
+            // Strona tytułowa
+            this.doc.hasTitlePage = content.includes('\\begin{titlepage}') || content.includes('\\maketitle');
+
+            // Spisy
+            this.doc.hasTOC = content.includes('\\tableofcontents');
+            this.doc.hasLOF = content.includes('\\listoffigures');
+            this.doc.hasLOT = content.includes('\\listoftables');
+
+            this.log(`Strony specjalne: titlepage=${this.doc.hasTitlePage}, TOC=${this.doc.hasTOC}, LOF=${this.doc.hasLOF}, LOT=${this.doc.hasLOT}`);
+        }
+
+        // Przetwarzanie strony tytułowej
+        processTitlePage(content) {
+            try {
+                if (content.includes('\\begin{titlepage}')) {
+                    // Niestandardowa strona tytułowa
+                    const titlePageMatch = content.match(/\\begin{titlepage}([\s\S]*?)\\end{titlepage}/);
+                    if (titlePageMatch) {
+                        let titleContent = titlePageMatch[1];
+
+                        // Przetwarzanie \centering
+                        titleContent = titleContent.replace(/\\centering/, '');
+
+                        // Przetwarzanie \vspace i \vfill
+                        titleContent = titleContent.replace(/\\vspace\*?\{[^}]*\}/g, '');
+                        titleContent = titleContent.replace(/\\vfill/g, '');
+
+                        // Przetwarzanie bloków formatowania
+                        let title = '';
+                        let subtitle = '';
+                        let author = '';
+                        let institution = '';
+
+                        // Wyodrębnij tytuł
+                        const hugeMatch = titleContent.match(/\{\\Huge(?:\\bfseries)?\s+([^}]+)(?:\\par)?\}/);
+                        if (hugeMatch) {
+                            title = this.cleanText(hugeMatch[1]);
+                        }
+
+                        // Wyodrębnij podtytuł
+                        const largeMatch = titleContent.match(/\{\\LARGE\s+([^}]+)(?:\\par)?\}/);
+                        if (largeMatch) {
+                            subtitle = this.cleanText(largeMatch[1]);
+                        }
+
+                        // Wyodrębnij autora
+                        const authorMatch = titleContent.match(/\{\\Large\s+([^}]+)(?:\\par)?\}/);
+                        if (authorMatch) {
+                            author = this.cleanText(authorMatch[1]);
+                        }
+
+                        // Wyodrębnij instytucję
+                        const institutionMatch = titleContent.match(/\{\\large\s+([^}]+)(?:\\\\[^}]*)*(?:\\par)?\}/);
+                        if (institutionMatch) {
+                            institution = this.cleanText(institutionMatch[1]).replace(/\\\\/g, '<br>');
+                        }
+
+                        // Aktualna data
+                        const today = "16 kwietnia 2025";
+
+                        // Dodaj datę do instytucji
+                        if (institution && !institution.includes(today)) {
+                            institution += '<br>' + today;
+                        }
+
+                        return `
+                        <div class="title-page">
+                            <div class="title">${title}</div>
+                            ${subtitle ? `<div class="subtitle">${subtitle}</div>` : ''}
+                            ${author ? `<div class="author">${author}</div>` : ''}
+                            ${institution ? `<div class="institution">${institution}</div>` : ''}
+                        </div>`;
+                    }
+                } else if (content.includes('\\maketitle')) {
+                    // Standardowa strona tytułowa
+                    return `
+                    <div class="title-page">
+                        <div class="title">${this.doc.title}</div>
+                        ${this.doc.author ? `<div class="author">${this.doc.author}</div>` : ''}
+                        ${this.doc.date ? `<div class="institution">${this.doc.date}</div>` : ''}
+                    </div>`;
+                }
+            } catch (error) {
+                this.log(`Błąd przetwarzania strony tytułowej: ${error.message}`);
             }
 
-            // Process main content
-            let mainContent = documentContent;
+            return '';
+        }
 
-            // Remove processed parts to avoid duplication
-            if (documentContent.includes('\\maketitle')) {
-                mainContent = mainContent.replace('\\maketitle', '');
+        // Usunięcie strony tytułowej z głównej treści
+        removeTitlePage(content) {
+            try {
+                // Usuń środowisko titlepage
+                let result = content.replace(/\\begin{titlepage}[\s\S]*?\\end{titlepage}/g, '');
+
+                // Usuń komendę maketitle
+                result = result.replace(/\\maketitle/g, '');
+
+                return result;
+            } catch (error) {
+                this.log(`Błąd usuwania strony tytułowej: ${error.message}`);
+                return content;
             }
-            if (abstractMatch) {
-                mainContent = mainContent.replace(abstractMatch[0], '');
+        }
+
+        // Przetwarzanie struktury dokumentu (rozdziały, sekcje)
+        processStructure(content) {
+            let html = '';
+
+            try {
+                // Przetwarzanie rozdziałów
+                const chapters = content.split(/\\chapter\{([^}]*)\}/g);
+
+                if (chapters.length > 1) {
+                    // Pierwszy element to tekst przed pierwszym rozdziałem
+                    if (chapters[0].trim()) {
+                        html += this.processContent(chapters[0]);
+                    }
+
+                    // Przetwarzanie rozdziałów
+                    for (let i = 1; i < chapters.length; i += 2) {
+                        const chapterTitle = chapters[i];
+                        const chapterContent = chapters[i + 1] || '';
+
+                        this.counters.chapter++;
+                        this.counters.section = 0;
+
+                        // Dodaj rozdział do spisu treści
+                        this.toc.push({
+                            level: 'chapter',
+                            number: this.counters.chapter,
+                            title: this.cleanText(chapterTitle)
+                        });
+
+                        html += `
+                        <div class="chapter" id="chapter-${this.counters.chapter}">
+                            <h1 class="chapter-title">${this.cleanText(chapterTitle)}</h1>
+                            ${this.processSections(chapterContent)}
+                        </div>`;
+                    }
+                } else {
+                    // Dokument bez rozdziałów
+                    html += this.processContent(content);
+                }
+            } catch (error) {
+                this.log(`Błąd przetwarzania struktury dokumentu: ${error.message}`);
+                html += `<div class="error-message">Błąd przetwarzania struktury: ${error.message}</div>`;
+                html += this.processContent(content);
             }
-
-            // Apply two-column layout if the document class has two columns
-            // For this example, we'll assume elbioimp2 has two columns
-            if (documentClass && documentClass[1] === 'elbioimp2') {
-                html += '<div class="two-column">';
-            }
-
-            // Process the main content
-            html += processContent(mainContent);
-
-            // Close two-column div if needed
-            if (documentClass && documentClass[1] === 'elbioimp2') {
-                html += '</div>';
-            }
-
-            // Close the document div
-            html += '</div>';
 
             return html;
         }
 
-        function processContent(content) {
-            let processedContent = content;
+        // Przetwarzanie sekcji
+        processSections(content) {
+            let html = '';
 
-            // Process sections
-            processedContent = processedContent.replace(/\\section\{([^}]+)\}/g, '<h2>$1</h2>');
-            processedContent = processedContent.replace(/\\subsection\{([^}]+)\}/g, '<h3>$1</h3>');
-            processedContent = processedContent.replace(/\\subsubsection\{([^}]+)\}/g, '<h4>$1</h4>');
+            try {
+                // Przetwarzanie sekcji
+                const sections = content.split(/\\section\{([^}]*)\}/g);
 
-            // Process figures
-            processedContent = processedContent.replace(/\\begin\{figure\}[\s\S]*?\\includegraphics(?:\[([^]]*)\])?\{([^}]+)\}[\s\S]*?\\caption\{([^}]*)\}[\s\S]*?\\end\{figure\}/g,
-                (match, options, path, caption) => {
-                    return `<figure class="figure">
-                                    <img src="/api/placeholder/400/320" alt="${path}" />
-                                    <figcaption class="caption">Figure: ${processInlineCommands(caption)}</figcaption>
-                                </figure>`;
+                if (sections.length > 1) {
+                    // Pierwszy element to tekst przed pierwszą sekcją
+                    if (sections[0].trim()) {
+                        html += this.processContent(sections[0]);
+                    }
+
+                    // Przetwarzanie sekcji
+                    for (let i = 1; i < sections.length; i += 2) {
+                        const sectionTitle = sections[i];
+                        const sectionContent = sections[i + 1] || '';
+
+                        this.counters.section++;
+                        this.counters.subsection = 0;
+
+                        // Dodaj sekcję do spisu treści
+                        this.toc.push({
+                            level: 'section',
+                            chapter: this.counters.chapter,
+                            number: this.counters.section,
+                            title: this.cleanText(sectionTitle)
+                        });
+
+                        html += `
+                        <div class="section" id="section-${this.counters.chapter}-${this.counters.section}">
+                            <h2 class="section-title">${this.cleanText(sectionTitle)}</h2>
+                            ${this.processSubsections(sectionContent)}
+                        </div>`;
+                    }
+                } else {
+                    // Rozdział bez sekcji
+                    html += this.processContent(content);
                 }
-            );
-
-            // Process citations
-            processedContent = processedContent.replace(/\\cite\{([^}]+)\}/g, '<span class="citation">[1]</span>');
-
-            // Process references
-            processedContent = processedContent.replace(/\\ref\{([^}]+)\}/g, '<span class="reference">1</span>');
-
-            // Process bibliography
-            if (processedContent.includes('\\printbibliography')) {
-                processedContent = processedContent.replace('\\printbibliography',
-                    `<div class="bibliography">
-                            <h2>References</h2>
-                            <div class="bibliography-item">[1] Reference item example.</div>
-                        </div>`
-                );
+            } catch (error) {
+                this.log(`Błąd przetwarzania sekcji: ${error.message}`);
+                html += this.processContent(content);
             }
 
-            // Process inline commands
-            processedContent = processInlineCommands(processedContent);
+            return html;
+        }
 
-            // Split into paragraphs (handle newlines)
-            const paragraphs = processedContent.split(/\n{2,}/);
-            return paragraphs.map(p => {
-                if (p.trim().startsWith('<h') || p.trim().startsWith('<figure') || p.trim().startsWith('<div')) {
-                    return p;
-                } else if (p.trim()) {
-                    return `<p>${p.trim()}</p>`;
+        // Przetwarzanie podsekcji
+        processSubsections(content) {
+            let html = '';
+
+            try {
+                // Przetwarzanie podsekcji
+                const subsections = content.split(/\\subsection\{([^}]*)\}/g);
+
+                if (subsections.length > 1) {
+                    // Pierwszy element to tekst przed pierwszą podsekcją
+                    if (subsections[0].trim()) {
+                        html += this.processContent(subsections[0]);
+                    }
+
+                    // Przetwarzanie podsekcji
+                    for (let i = 1; i < subsections.length; i += 2) {
+                        const subsectionTitle = subsections[i];
+                        const subsectionContent = subsections[i + 1] || '';
+
+                        this.counters.subsection++;
+
+                        // Dodaj podsekcję do spisu treści
+                        this.toc.push({
+                            level: 'subsection',
+                            chapter: this.counters.chapter,
+                            section: this.counters.section,
+                            number: this.counters.subsection,
+                            title: this.cleanText(subsectionTitle)
+                        });
+
+                        html += `
+                        <div class="subsection" id="subsection-${this.counters.chapter}-${this.counters.section}-${this.counters.subsection}">
+                            <h3 class="subsection-title">${this.cleanText(subsectionTitle)}</h3>
+                            ${this.processContent(subsectionContent)}
+                        </div>`;
+                    }
+                } else {
+                    // Sekcja bez podsekcji
+                    html += this.processContent(content);
                 }
-                return '';
-            }).join('\n');
+            } catch (error) {
+                this.log(`Błąd przetwarzania podsekcji: ${error.message}`);
+                html += this.processContent(content);
+            }
+
+            return html;
         }
 
-        function processInlineCommands(text) {
-            let processedText = text;
+        // Przetwarzanie treści
+        processContent(content) {
+            if (!content || !content.trim()) return '';
 
-            // Process emphasis
-            processedText = processedText.replace(/\\emph\{([^}]+)\}/g, '<em>$1</em>');
-            processedText = processedText.replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>');
-            processedText = processedText.replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>');
+            try {
+                let html = content;
 
-            // Process LaTeX command
-            processedText = processedText.replace(/\\LaTeX/g, 'LaTeX');
+                // Przetwarzanie środowisk
+                html = this.processEnvironments(html);
 
-            // Process special characters
-            processedText = processedText.replace(/\\%/g, '%');
-            processedText = processedText.replace(/\\_/g, '_');
-            processedText = processedText.replace(/\\&/g, '&');
+                // Przetwarzanie matematyki
+                html = this.processMath(html);
 
-            // Process spacing commands
-            processedText = processedText.replace(/\\,/g, ' ');
-            processedText = processedText.replace(/~/g, ' ');
+                // Przetwarzanie list
+                html = this.processLists(html);
 
-            // Process math environments
-            processedText = processedText.replace(/\$([^$]+)\$/g, '\\($1\\)');
+                // Przetwarzanie komend
+                html = this.processCommands(html);
 
-            return processedText;
-        }
+                // Czyszczenie tekstu
+                html = this.cleanSpaces(html);
 
-        function loadExample() {
-            editor.setValue(latexExample);
-            editor.clearSelection();
-            compileLatex();
-            logToConsole('Przykład załadowany', 'info');
-        }
-
-        function clearEditor() {
-            editor.setValue('');
-            logToConsole('Edytor wyczyszczony', 'info');
-        }
-
-        function toggleConsole() {
-            consoleElement.classList.toggle('active');
-            if (consoleElement.classList.contains('active')) {
-                consoleToggle.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="18 15 12 9 6 15"></polyline>
-                        </svg>
-                        Ukryj konsolę
-                    `;
-            } else {
-                consoleToggle.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="4 17 10 11 4 5"></polyline>
-                            <line x1="12" y1="19" x2="20" y2="19"></line>
-                        </svg>
-                        Konsola
-                    `;
+                return html;
+            } catch (error) {
+                this.log(`Błąd przetwarzania treści: ${error.message}`);
+                return `<div class="error-message">Błąd przetwarzania treści: ${error.message}</div>${content}`;
             }
         }
 
-        function toggleAutoCompile() {
-            if (autoCompileCheckbox.checked) {
-                logToConsole('Auto-kompilacja włączona', 'info');
-            } else {
-                logToConsole('Auto-kompilacja wyłączona', 'info');
+        // Przetwarzanie środowisk
+        processEnvironments(content) {
+            try {
+                let result = content;
+
+                // Przetwarzanie środowiska definition
+                result = this.processTheoremLike(result, 'definition', 'Definicja');
+
+                // Przetwarzanie środowiska theorem
+                result = this.processTheoremLike(result, 'theorem', 'Twierdzenie');
+
+                // Przetwarzanie środowiska lemma
+                result = this.processTheoremLike(result, 'lemma', 'Lemat');
+
+                // Przetwarzanie środowiska proposition
+                result = this.processTheoremLike(result, 'proposition', 'Propozycja');
+
+                // Przetwarzanie środowiska corollary
+                result = this.processTheoremLike(result, 'corollary', 'Wniosek');
+
+                // Przetwarzanie środowiska example
+                result = this.processTheoremLike(result, 'example', 'Przykład');
+
+                // Przetwarzanie środowiska remark
+                result = this.processTheoremLike(result, 'remark', 'Uwaga');
+
+                // Przetwarzanie środowiska proof
+                result = this.processProof(result);
+
+                // Przetwarzanie środowiska figure - z lepszym wykrywaniem typów wykresów
+                result = result.replace(/\\begin{figure}(?:\[([^\]]*)\])?(.*?)\\end{figure}/gs, (match, placement, figureContent) => {
+                    // Inkrementuj licznik figur
+                    this.counters.figure++;
+                    const figureNumber = this.counters.figure;
+                    const chapterNumber = this.counters.chapter;
+
+                    // Wyodrębnij podpis
+                    let caption = '';
+                    const captionMatch = figureContent.match(/\\caption\{([^}]*)\}/);
+                    if (captionMatch) {
+                        caption = this.cleanText(captionMatch[1]);
+                    }
+
+                    // Dodaj do spisu figur
+                    if (caption) {
+                        this.lof.push({
+                            chapter: chapterNumber,
+                            number: figureNumber,
+                            caption: caption
+                        });
+                    }
+
+                    // Identyfikator figury
+                    const figureId = `figure-${chapterNumber}-${figureNumber}`;
+
+                    // Sprawdź czy zawiera TikZ i utwórz odpowiedni wykres
+                    let figureImg = '';
+                    if (figureContent.includes('\\begin{tikzpicture}')) {
+                        const plotType = this.determinePlotType(figureContent, chapterNumber, figureNumber);
+                        // Zapisz informacje o wykresie do późniejszego renderowania
+                        this.plots.push({
+                            id: figureId,
+                            type: plotType,
+                            chapter: chapterNumber,
+                            figure: figureNumber,
+                            content: figureContent  // Dodanie zawartości do analizy
+                        });
+
+                        figureImg = `<div id="${figureId}-plot" class="figure-content"></div>`;
+                    } else if (figureContent.includes('\\includegraphics')) {
+                        // Standardowy obraz
+                        figureImg = '<img src="/api/placeholder/400/300" alt="Figure placeholder">';
+                    }
+
+                    return `
+                    <figure id="${figureId}">
+                        ${figureImg}
+                        <figcaption>${caption}</figcaption>
+                    </figure>`;
+                });
+
+                // Przetwarzanie środowiska table
+                result = this.processTable(result);
+
+                // Przetwarzanie środowiska algorithm
+                result = this.processAlgorithm(result);
+
+                return result;
+            } catch (error) {
+                this.log(`Błąd przetwarzania środowisk: ${error.message}`);
+                return content;
             }
         }
 
-        function updatePreviewMode() {
-            compileLatex();
+        // Przetwarzanie środowisk typu theorem
+        processTheoremLike(content, envName, label) {
+            try {
+                // Regex dopasowanie środowiska z opcjonalnym parametrem
+                const regex = new RegExp(`\\\\begin{${envName}}(?:\\[([^\\]]*)\\])?(.*?)\\\\end{${envName}}`, 'gs');
+
+                return content.replace(regex, (match, param, envContent) => {
+                    // Inkrementuj licznik
+                    this.counters[envName] = (this.counters[envName] || 0) + 1;
+
+                    // Przygotuj nagłówek
+                    const number = this.counters.chapter ? `${this.counters.chapter}.${this.counters[envName]}` : this.counters[envName];
+                    const headerText = param ? `${label} ${number} (${param})` : `${label} ${number}`;
+
+                    // Przetwórz zawartość środowiska
+                    const processedContent = this.processContent(envContent);
+
+                    return `
+                    <div class="${envName}" id="${envName}-${number.replace('.', '-')}">
+                        <div class="${envName}-header">${headerText}</div>
+                        <div class="${envName}-content">${processedContent}</div>
+                    </div>`;
+                });
+            } catch (error) {
+                this.log(`Błąd przetwarzania środowiska ${envName}: ${error.message}`);
+                return content;
+            }
         }
 
-        function logToConsole(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const logElement = document.createElement('div');
-            logElement.classList.add(type);
-            logElement.textContent = `[${timestamp}] ${message}`;
-            consoleContent.appendChild(logElement);
-            consoleContent.scrollTop = consoleContent.scrollHeight;
+        // Przetwarzanie środowiska proof
+        processProof(content) {
+            try {
+                const regex = /\\begin{proof}(.*?)\\end{proof}/gs;
+
+                return content.replace(regex, (match, proofContent) => {
+                    const processedContent = this.processContent(proofContent);
+
+                    return `
+                    <div class="proof">
+                        ${processedContent}
+                    </div>`;
+                });
+            } catch (error) {
+                this.log(`Błąd przetwarzania środowiska proof: ${error.message}`);
+                return content;
+            }
         }
 
-        function updateStatus(status) {
-            statusElement.textContent = status;
+        // Przetwarzanie środowiska table
+        processTable(content) {
+            try {
+                const regex = /\\begin{table}(?:\[([^\]]*)\])?(.*?)\\end{table}/gs;
+
+                return content.replace(regex, (match, placement, tableContent) => {
+                    // Inkrementuj licznik tabel
+                    this.counters.table++;
+
+                    // Wyodrębnij podpis
+                    let caption = '';
+                    const captionMatch = tableContent.match(/\\caption\{([^}]*)\}/);
+                    if (captionMatch) {
+                        caption = this.cleanText(captionMatch[1]);
+                    }
+
+                    // Dodaj do spisu tabel
+                    if (caption) {
+                        this.lot.push({
+                            chapter: this.counters.chapter,
+                            number: this.counters.table,
+                            caption: caption
+                        });
+                    }
+
+                    // Przetwarzanie tabular
+                    let tableHTML = '';
+                    const tabularMatch = tableContent.match(/\\begin{tabular}(?:\{([^}]*)\})?(.*?)\\end{tabular}/s);
+                    if (tabularMatch) {
+                        const tabularContent = tabularMatch[2];
+                        tableHTML = this.processTabular(tabularContent);
+                    }
+
+                    return `
+                    <div class="table-container" id="table-${this.counters.chapter}-${this.counters.table}">
+                        <table>
+                            <caption>${caption}</caption>
+                            ${tableHTML}
+                        </table>
+                    </div>`;
+                });
+            } catch (error) {
+                this.log(`Błąd przetwarzania środowiska table: ${error.message}`);
+                return content;
+            }
         }
 
-        // Initialize
-        loadExample();
+        // Przetwarzanie środowiska algorithm
+        processAlgorithm(content) {
+            try {
+                const regex = /\\begin{algorithm}(.*?)\\end{algorithm}/gs;
+
+                return content.replace(regex, (match, algoContent) => {
+                    // Inkrementuj licznik algorytmów
+                    this.counters.algorithm++;
+
+                    // Wyodrębnij podpis i treść algorytmu
+                    let caption = '';
+                    const captionMatch = algoContent.match(/\\caption\{([^}]*)\}/);
+                    if (captionMatch) {
+                        caption = this.cleanText(captionMatch[1]);
+                    }
+
+                    // Przetwarzanie treści algorytmu
+                    let algorithmBody = '';
+                    const algorithmicMatch = algoContent.match(/\\begin{algorithmic}(.*?)\\end{algorithmic}/s);
+                    if (algorithmicMatch) {
+                        const algorithmicContent = algorithmicMatch[1];
+                        algorithmBody = this.processAlgorithmic(algorithmicContent);
+                    }
+
+                    return `
+                    <div class="algorithm" id="algorithm-${this.counters.chapter}-${this.counters.algorithm}">
+                        <div class="algorithm-header">Algorytm ${this.counters.chapter}.${this.counters.algorithm}: ${caption}</div>
+                        <div class="algorithm-content">
+                            ${algorithmBody}
+                        </div>
+                    </div>`;
+                });
+            } catch (error) {
+                this.log(`Błąd przetwarzania środowiska algorithm: ${error.message}`);
+                return content;
+            }
+        }
+
+        // Przetwarzanie środowiska algorithmic
+        processAlgorithmic(content) {
+            try {
+                let html = '<ol class="algorithm-steps">';
+
+                // Zastąp komendy algorithmiczne odpowiednim HTML
+                let processedContent = content;
+
+                // Wymagania i rezultaty
+                processedContent = processedContent.replace(/\\Require:(.*?)(?=\\|$)/g, '<div class="algorithm-require"><strong>Wymagane:</strong>$1</div>');
+                processedContent = processedContent.replace(/\\Ensure:(.*?)(?=\\|$)/g, '<div class="algorithm-ensure"><strong>Rezultat:</strong>$1</div>');
+
+                // Przetwarzanie linii kodu
+                const lines = processedContent.split('\n').filter(line => line.trim());
+
+                for (const line of lines) {
+                    if (line.includes('\\Require') || line.includes('\\Ensure')) {
+                        // Już przetworzono powyżej
+                        continue;
+                    } else if (line.includes('\\State')) {
+                        const stateMatch = line.match(/\\State\s+(.*)/);
+                        if (stateMatch) {
+                            html += `<li>${this.processContent(stateMatch[1])}</li>`;
+                        }
+                    } else if (line.includes('\\For')) {
+                        const forMatch = line.match(/\\For\{([^}]*)\}/);
+                        if (forMatch) {
+                            html += `<li><strong>dla</strong> ${this.processContent(forMatch[1])}</li>`;
+                        }
+                    } else if (line.includes('\\EndFor')) {
+                        html += `<li><strong>koniec dla</strong></li>`;
+                    } else if (line.includes('\\If')) {
+                        const ifMatch = line.match(/\\If\{([^}]*)\}/);
+                        if (ifMatch) {
+                            html += `<li><strong>jeśli</strong> ${this.processContent(ifMatch[1])}</li>`;
+                        }
+                    } else if (line.includes('\\EndIf')) {
+                        html += `<li><strong>koniec jeśli</strong></li>`;
+                    } else if (line.trim()) {
+                        html += `<li>${this.processContent(line)}</li>`;
+                    }
+                }
+
+                html += '</ol>';
+                return html;
+            } catch (error) {
+                this.log(`Błąd przetwarzania algorithmic: ${error.message}`);
+                return content;
+            }
+        }
+
+        // Przetwarzanie środowiska tabular
+        processTabular(content) {
+            try {
+                // Usuń komendy \hline
+                let cleanContent = content.replace(/\\hline/g, '');
+
+                // Podziel na wiersze
+                const rows = cleanContent.split('\\\\').filter(row => row.trim());
+
+                // Sprawdź, czy pierwszy wiersz to nagłówek
+                const hasHeader = rows.length > 0 && rows[0].includes('\\textbf');
+
+                let html = '';
+
+                if (hasHeader) {
+                    // Przetwarzanie wiersza nagłówkowego
+                    const headerCells = rows[0].split('&');
+                    html += '<thead><tr>';
+                    for (const cell of headerCells) {
+                        html += `<th>${this.processContent(cell)}</th>`;
+                    }
+                    html += '</tr></thead>';
+                    rows.shift();
+                }
+
+                // Przetwarzanie pozostałych wierszy
+                html += '<tbody>';
+                for (const row of rows) {
+                    html += '<tr>';
+                    const cells = row.split('&');
+                    for (const cell of cells) {
+                        html += `<td>${this.processContent(cell)}</td>`;
+                    }
+                    html += '</tr>';
+                }
+                html += '</tbody>';
+
+                return html;
+            } catch (error) {
+                this.log(`Błąd przetwarzania tabular: ${error.message}`);
+                return '<tbody><tr><td>Błąd przetwarzania tabeli</td></tr></tbody>';
+            }
+        }
+
+        // Przetwarzanie list
+        processLists(content) {
+            try {
+                // Przetwarzanie itemize
+                let result = content.replace(/\\begin{itemize}(.*?)\\end{itemize}/gs, (match, listContent) => {
+                    // Podziel na elementy listy
+                    const items = listContent.split('\\item').filter(item => item.trim());
+
+                    // Generuj HTML
+                    let itemsHtml = '';
+                    for (const item of items) {
+                        itemsHtml += `<li>${this.processContent(item)}</li>`;
+                    }
+
+                    return `<ul class="itemize">${itemsHtml}</ul>`;
+                });
+
+                // Przetwarzanie enumerate
+                result = result.replace(/\\begin{enumerate}(.*?)\\end{enumerate}/gs, (match, listContent) => {
+                    // Podziel na elementy listy
+                    const items = listContent.split('\\item').filter(item => item.trim());
+
+                    // Generuj HTML
+                    let itemsHtml = '';
+                    for (const item of items) {
+                        itemsHtml += `<li>${this.processContent(item)}</li>`;
+                    }
+
+                    return `<ol class="enumerate">${itemsHtml}</ol>`;
+                });
+
+                return result;
+            } catch (error) {
+                this.log(`Błąd przetwarzania list: ${error.message}`);
+                return content;
+            }
+        }
+
+        // Przetwarzanie matematyki
+        processMath(content) {
+            try {
+                let result = content;
+
+                // Przetwarzanie align
+                result = result.replace(/\\begin{align}(.*?)\\end{align}/gs, (match, alignContent) => {
+                    // Inkrementuj licznik równań
+                    this.counters.equation++;
+
+                    // Przekształć zawartość align
+                    const cleanedContent = alignContent
+                        .replace(/&/g, '')
+                        .replace(/\\\\/g, '\\\\');
+
+                    return `<div class="math-display math-number" id="equation-${this.counters.chapter}-${this.counters.equation}">$$${cleanedContent}$$</div>`;
+                });
+
+                // Przetwarzanie equation
+                result = result.replace(/\\begin{equation}(.*?)\\end{equation}/gs, (match, eqContent) => {
+                    // Inkrementuj licznik równań
+                    this.counters.equation++;
+
+                    return `<div class="math-display math-number" id="equation-${this.counters.chapter}-${this.counters.equation}">$$${eqContent}$$</div>`;
+                });
+
+                // Przetwarzanie $...$
+                result = result.replace(/\$([^$]+)\$/g, (match, content) => {
+                    return `\\(${content}\\)`;
+                });
+
+                return result;
+            } catch (error) {
+                this.log(`Błąd przetwarzania matematyki: ${error.message}`);
+                return content;
+            }
+        }
+
+        // Przetwarzanie komend LaTeX
+        processCommands(content) {
+            try {
+                let result = content;
+
+                // Formatowanie tekstu
+                result = result.replace(/\\textbf\{([^}]*)\}/g, '<strong>$1</strong>');
+                result = result.replace(/\\textit\{([^}]*)\}/g, '<em>$1</em>');
+                result = result.replace(/\\emph\{([^}]*)\}/g, '<em>$1</em>');
+                result = result.replace(/\\underline\{([^}]*)\}/g, '<u>$1</u>');
+
+                // Konwersja znaków specjalnych
+                result = result.replace(/\\%/g, '%');
+                result = result.replace(/\\_/g, '_');
+                result = result.replace(/\\&/g, '&');
+                result = result.replace(/\\#/g, '#');
+                result = result.replace(/\\{/g, '{');
+                result = result.replace(/\\}/g, '}');
+
+                // Nowe linie
+                result = result.replace(/\\\\(\[.*?\])?/g, '<br>');
+                result = result.replace(/\\newline/g, '<br>');
+
+                // Referencje i cytowania
+                result = result.replace(/\\ref\{([^}]*)\}/g, '<span class="ref">??</span>');
+                result = result.replace(/\\cite\{([^}]*)\}/g, '<span class="citation">[$1]</span>');
+
+                // Polskie litery
+                result = result.replace(/\\k\{a\}/g, 'ą');
+                result = result.replace(/\\k\{e\}/g, 'ę');
+                result = result.replace(/\\l\{\}/g, 'ł');
+                result = result.replace(/\\\'c/g, 'ć');
+                result = result.replace(/\\\'n/g, 'ń');
+                result = result.replace(/\\\'o/g, 'ó');
+                result = result.replace(/\\\'s/g, 'ś');
+                result = result.replace(/\\\'z/g, 'ź');
+                result = result.replace(/\\.z/g, 'ż');
+
+                // LaTeX standardowe matematyczne symbole
+                result = result.replace(/\\mathbb\{R\}/g, '\\mathbb{R}');
+                result = result.replace(/\\mathbb\{Z\}/g, '\\mathbb{Z}');
+                result = result.replace(/\\mathbb\{N\}/g, '\\mathbb{N}');
+                result = result.replace(/\\mathbb\{C\}/g, '\\mathbb{C}');
+
+                return result;
+            } catch (error) {
+                this.log(`Błąd przetwarzania komend: ${error.message}`);
+                return content;
+            }
+        }
+
+        // Czyszczenie tekstu
+        cleanText(text) {
+            if (!text) return '';
+
+            try {
+                return text
+                    .replace(/\\par/g, '')
+                    .replace(/\\textbf\{([^}]*)\}/g, '$1')
+                    .replace(/\\textit\{([^}]*)\}/g, '$1')
+                    .replace(/\\emph\{([^}]*)\}/g, '$1')
+                    .trim();
+            } catch (error) {
+                this.log(`Błąd czyszczenia tekstu: ${error.message}`);
+                return text;
+            }
+        }
+
+        // Usuwanie nadmiarowych spacji i znaków nowej linii
+        cleanSpaces(text) {
+            if (!text) return '';
+
+            try {
+                return text
+                    .replace(/\n\s*\n/g, '<p>')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            } catch (error) {
+                this.log(`Błąd czyszczenia spacji: ${error.message}`);
+                return text;
+            }
+        }
+
+        // Uzupełnianie spisów
+        populateListings() {
+            // Spis treści
+            try {
+                const tocContent = document.getElementById('toc-content');
+                if (tocContent && this.doc.hasTOC) {
+                    let html = '';
+
+                    for (const entry of this.toc) {
+                        let id, number, className, title;
+
+                        if (entry.level === 'chapter') {
+                            id = `chapter-${entry.number}`;
+                            number = entry.number;
+                            className = 'toc-chapter';
+                            title = entry.title;
+                        } else if (entry.level === 'section') {
+                            id = `section-${entry.chapter}-${entry.number}`;
+                            number = `${entry.chapter}.${entry.number}`;
+                            className = 'toc-section';
+                            title = entry.title;
+                        } else if (entry.level === 'subsection') {
+                            id = `subsection-${entry.chapter}-${entry.section}-${entry.number}`;
+                            number = `${entry.chapter}.${entry.section}.${entry.number}`;
+                            className = 'toc-subsection';
+                            title = entry.title;
+                        }
+
+                        html += `
+                        <div class="toc-entry ${className}">
+                            <span>${number} ${title}</span>
+                            <span class="toc-dots"></span>
+                            <span><a href="#${id}">${typeof number === 'number' ? number : number}</a></span>
+                        </div>`;
+                    }
+
+                    tocContent.innerHTML = html;
+                }
+            } catch (error) {
+                this.log(`Błąd generowania spisu treści: ${error.message}`);
+            }
+
+            // Poprawny spis rysunków
+            try {
+                const lofContent = document.getElementById('lof-content');
+                if (lofContent && this.doc.hasLOF) {
+                    let html = '';
+
+                    for (const entry of this.lof) {
+                        const id = `figure-${entry.chapter}-${entry.number}`;
+                        const number = `${entry.chapter}.${entry.number}`;
+
+                        html += `
+                        <div class="toc-entry">
+                            <span>Rysunek ${number}: ${entry.caption}</span>
+                            <span class="toc-dots"></span>
+                            <span><a href="#${id}">${number}</a></span>
+                        </div>`;
+                    }
+
+                    lofContent.innerHTML = html;
+                }
+            } catch (error) {
+                this.log(`Błąd generowania spisu rysunków: ${error.message}`);
+            }
+
+            // Spis tabel
+            try {
+                const lotContent = document.getElementById('lot-content');
+                if (lotContent && this.doc.hasLOT) {
+                    let html = '';
+
+                    for (const entry of this.lot) {
+                        const id = `table-${entry.chapter}-${entry.number}`;
+                        const number = `${entry.chapter}.${entry.number}`;
+
+                        html += `
+                        <div class="toc-entry">
+                            <span>Tabela ${number}: ${entry.caption}</span>
+                            <span class="toc-dots"></span>
+                            <span><a href="#${id}">${number}</a></span>
+                        </div>`;
+                    }
+
+                    lotContent.innerHTML = html;
+                }
+            } catch (error) {
+                this.log(`Błąd generowania spisu tabel: ${error.message}`);
+            }
+        }
+
+        // Funkcja poprawiająca determinację typu wykresu
+        determinePlotType(content, chapter, figure) {
+            // Ulepszone wykrywanie wykresów na podstawie zawartości i kontekstu
+            if (content.includes('\\begin{tikzpicture}')) {
+                if (chapter === 2 && figure === 1) {
+                    return 'bifurcation'; // Wykres bifurkacji
+                } else if (chapter === 2 && figure === 2) {
+                    return 'lorenz'; // Układ Lorenza
+                } else if (chapter === 2 && figure === 3) {
+                    return 'logistic-map'; // Mapa logistyczna
+                } else if (chapter === 3 && figure === 1) {
+                    return 'rosenbrock'; // Funkcja Rosenbrocka
+                } else if (chapter === 3 && figure === 2) {
+                    return 'kuramoto'; // Model Kuramoto
+                }
+            }
+
+            // Dodatkowe szczegółowe wykrywanie na podstawie zawartości
+            if (content.includes('siodło-węzeł') || content.includes('bifurkacji')) {
+                return 'bifurcation';
+            } else if (content.includes('Lorenza') || (content.includes('view') && content.includes('x') && content.includes('y') && content.includes('z'))) {
+                return 'lorenz';
+            } else if (content.includes('logistyczna') || content.includes('xn+1')) {
+                return 'logistic-map';
+            } else if (content.includes('Rosenbrocka') || content.includes('(1-x)^2')) {
+                return 'rosenbrock';
+            } else if (content.includes('Kuramoto') || content.includes('porządku r')) {
+                return 'kuramoto';
+            }
+
+            // Domyślny typ
+            return 'generic';
+        }
+
+        // Renderowanie wykresów
+        renderPlots() {
+            // Dla każdego zdefiniowanego wykresu
+            for (const plot of this.plots) {
+                const container = document.getElementById(`${plot.id}-plot`);
+                if (!container) continue;
+
+                switch (plot.type) {
+                    case 'bifurcation':
+                        this.renderBifurcationDiagram(container);
+                        break;
+                    case 'lorenz':
+                        this.renderLorenzSystem(container);
+                        break;
+                    case 'logistic-map':
+                        this.renderLogisticMap(container);
+                        break;
+                    case 'rosenbrock':
+                        this.renderRosenbrockFunction(container);
+                        break;
+                    case 'kuramoto':
+                        this.renderKuramotoModel(container);
+                        break;
+                    default:
+                        // Domyślny podstawowy wykres
+                        this.renderDefaultPlot(container);
+                }
+            }
+        }
+
+        // Renderowanie diagramu bifurkacji
+        renderBifurcationDiagram(container) {
+            container.innerHTML = '<canvas width="400" height="300"></canvas>';
+            const canvas = container.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Tytuł
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText('Diagram bifurkacji siodło-węzeł dla układu ẋ = r + x²', canvas.width/2, 20);
+
+            // Ustawienie układu współrzędnych
+            const margin = 40;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+
+            // Rysowanie osi
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(canvas.width - margin, canvas.height - margin); // Oś X
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(margin, margin); // Oś Y
+            ctx.stroke();
+
+            // Etykiety osi
+            ctx.fillText('x', canvas.width - margin + 15, canvas.height - margin + 15);
+            ctx.fillText('ẋ', margin - 15, margin - 10);
+
+            // Funkcje mapowania
+            const mapX = x => margin + (x + 2) * width / 4; // x od -2 do 2
+            const mapY = y => canvas.height - margin - (y + 2) * height / 6; // y dopasowane dla lepszego dopasowania
+
+            // Parabole dla różnych wartości r
+            const rValues = [-1, 0, 1];
+            const colors = ['blue', 'red', 'green'];
+            const labels = ['r = -1', 'r = 0', 'r = 1'];
+
+            // Rysowanie parabol
+            for (let i = 0; i < rValues.length; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = colors[i];
+                ctx.lineWidth = 2;
+
+                const r = rValues[i];
+                let firstPoint = true;
+
+                for (let x = -2; x <= 2; x += 0.05) {
+                    // Funkcja: ẋ = r + x²
+                    const y = r + x * x;
+                    const px = mapX(x);
+                    const py = mapY(y);
+
+                    if (firstPoint) {
+                        ctx.moveTo(px, py);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+
+                ctx.stroke();
+
+                // Dodanie do legendy
+                ctx.beginPath();
+                ctx.strokeStyle = colors[i];
+                ctx.moveTo(canvas.width - 120, 50 + i * 20);
+                ctx.lineTo(canvas.width - 90, 50 + i * 20);
+                ctx.stroke();
+
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'left';
+                ctx.fillText(labels[i], canvas.width - 85, 54 + i * 20);
+            }
+
+            // Rysowanie siatki i podziałki
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 0.5;
+            ctx.textAlign = 'center';
+
+            // Podziałka osi X
+            for (let x = -2; x <= 2; x += 0.5) {
+                const px = mapX(x);
+                ctx.beginPath();
+                ctx.moveTo(px, canvas.height - margin - 5);
+                ctx.lineTo(px, canvas.height - margin + 5);
+                ctx.stroke();
+                ctx.fillText(x.toFixed(1), px, canvas.height - margin + 20);
+            }
+
+            // Podziałka osi Y
+            ctx.textAlign = 'right';
+            for (let y = -2; y <= 4; y += 1) {
+                const py = mapY(y);
+                ctx.beginPath();
+                ctx.moveTo(margin - 5, py);
+                ctx.lineTo(margin + 5, py);
+                ctx.stroke();
+                ctx.fillText(y.toString(), margin - 10, py + 4);
+            }
+        }
+
+        // Renderowanie układu Lorenza
+        renderLorenzSystem(container) {
+            // Ustawienie canvas
+            container.innerHTML = '<canvas width="400" height="300"></canvas>';
+            const canvas = container.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Tytuł
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText('Uproszczona ilustracja trajektorii układu Lorenza', canvas.width/2, 20);
+
+            // Czyszczenie tła
+            ctx.fillStyle = "#f9f9f9";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Axes
+            ctx.strokeStyle = "#aaa";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+
+            // X axis
+            ctx.moveTo(50, 200);
+            ctx.lineTo(350, 200);
+            ctx.stroke();
+
+            // Y axis
+            ctx.beginPath();
+            ctx.moveTo(50, 200);
+            ctx.lineTo(50, 50);
+            ctx.stroke();
+
+            // Z axis (perspective)
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(50, 200);
+            ctx.lineTo(100, 250);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Axis labels
+            ctx.fillStyle = "black";
+            ctx.fillText("x", 355, 205);
+            ctx.fillText("z", 40, 45);
+            ctx.fillText("y", 105, 255);
+
+            // Drawing the Lorenz attractor (butterfly shape)
+            // Left wing
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 2;
+            ctx.moveTo(120, 150);
+            ctx.bezierCurveTo(150, 100, 200, 100, 250, 150);
+            ctx.bezierCurveTo(220, 200, 170, 200, 120, 150);
+            ctx.stroke();
+
+            // Right wing (with dashed lines to indicate depth)
+            ctx.beginPath();
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(150, 180);
+            ctx.bezierCurveTo(180, 130, 230, 130, 280, 180);
+            ctx.bezierCurveTo(250, 230, 200, 230, 150, 180);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Direction arrows
+            ctx.fillStyle = "blue";
+            ctx.beginPath();
+            ctx.moveTo(180, 110);
+            ctx.lineTo(190, 120);
+            ctx.lineTo(175, 125);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(190, 190);
+            ctx.lineTo(180, 180);
+            ctx.lineTo(195, 175);
+            ctx.fill();
+        }
+
+        // Renderowanie mapy logistycznej
+        renderLogisticMap(container) {
+            container.innerHTML = '<canvas width="400" height="300"></canvas>';
+            const canvas = container.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Tytuł
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText('Mapa logistyczna dla różnych wartości parametru r', canvas.width/2, 20);
+
+            // Ustawienie układu współrzędnych
+            const margin = 40;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+
+            // Rysowanie osi
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(canvas.width - margin, canvas.height - margin); // Oś X
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(margin, margin); // Oś Y
+            ctx.stroke();
+
+            // Etykiety osi
+            ctx.fillText('xₙ', canvas.width/2, canvas.height - 5);
+
+            ctx.save();
+            ctx.translate(15, canvas.height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.textAlign = 'center';
+            ctx.fillText('xₙ₊₁', 0, 0);
+            ctx.restore();
+
+            // Funkcje mapowania
+            const mapX = x => margin + x * width;
+            const mapY = y => canvas.height - margin - y * height;
+
+            // Rysowanie linii tożsamości (xn+1 = xn)
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 3]);
+            ctx.moveTo(mapX(0), mapY(0));
+            ctx.lineTo(mapX(1), mapY(1));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Rysowanie map logistycznych dla różnych wartości r
+            const rValues = [3.2, 3.5, 3.9];
+            const colors = ['blue', 'red', 'green'];
+            const labels = ['r = 3.2', 'r = 3.5', 'r = 3.9', 'xₙ₊₁ = xₙ'];
+
+            // Rysowanie krzywych
+            for (let i = 0; i < rValues.length; i++) {
+                ctx.beginPath();
+                ctx.strokeStyle = colors[i];
+                ctx.lineWidth = 2;
+
+                const r = rValues[i];
+
+                for (let x = 0; x <= 1; x += 0.01) {
+                    const y = r * x * (1 - x);
+                    const px = mapX(x);
+                    const py = mapY(y);
+
+                    if (x === 0) {
+                        ctx.moveTo(px, py);
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+
+                ctx.stroke();
+
+                // Dodanie do legendy
+                ctx.beginPath();
+                ctx.strokeStyle = colors[i];
+                ctx.moveTo(canvas.width - 120, 50 + i * 20);
+                ctx.lineTo(canvas.width - 90, 50 + i * 20);
+                ctx.stroke();
+
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'left';
+                ctx.fillText(labels[i], canvas.width - 85, 54 + i * 20);
+            }
+
+            // Dodanie linii tożsamości do legendy
+            ctx.beginPath();
+            ctx.setLineDash([5, 3]);
+            ctx.strokeStyle = 'black';
+            ctx.moveTo(canvas.width - 120, 50 + 3 * 20);
+            ctx.lineTo(canvas.width - 90, 50 + 3 * 20);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillText(labels[3], canvas.width - 85, 54 + 3 * 20);
+
+            // Rysowanie siatki i podziałki
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 0.5;
+            ctx.textAlign = 'center';
+
+            // Podziałka osi X
+            for (let x = 0; x <= 1; x += 0.2) {
+                const px = mapX(x);
+                ctx.beginPath();
+                ctx.moveTo(px, canvas.height - margin - 5);
+                ctx.lineTo(px, canvas.height - margin + 5);
+                ctx.stroke();
+                ctx.fillText(x.toFixed(1), px, canvas.height - margin + 20);
+            }
+
+            // Podziałka osi Y
+            ctx.textAlign = 'right';
+            for (let y = 0; y <= 1; y += 0.2) {
+                const py = mapY(y);
+                ctx.beginPath();
+                ctx.moveTo(margin - 5, py);
+                ctx.lineTo(margin + 5, py);
+                ctx.stroke();
+                ctx.fillText(y.toFixed(1), margin - 10, py + 4);
+            }
+        }
+
+        // Renderowanie funkcji Rosenbrocka
+        renderRosenbrockFunction(container) {
+            container.innerHTML = '<canvas width="400" height="300"></canvas>';
+            const canvas = container.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Tytuł
+            ctx.font = '12px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText('Poziomice funkcji potencjału Rosenbrocka V(x,y) = (1-x)² + 100(y-x²)²', canvas.width/2, 15);
+
+            // Ustawienie układu współrzędnych
+            const margin = 40;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+
+            // Funkcja do mapowania współrzędnych matematycznych na piksele canvasu
+            const mapX = x => margin + (x + 2) * width / 4;
+            const mapY = y => canvas.height - margin - (y + 1) * height / 4;
+
+            // Rysowanie osi
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+
+            // Oś X
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(canvas.width - margin, canvas.height - margin);
+            ctx.stroke();
+
+            // Oś Y
+            ctx.beginPath();
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(margin, margin);
+            ctx.stroke();
+
+            // Etykiety osi
+            ctx.fillText('x', canvas.width - margin + 15, canvas.height - margin + 15);
+            ctx.fillText('y', margin - 15, margin - 10);
+
+            // Generowanie poziomicy dla funkcji Rosenbrocka
+            const contourLevels = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+
+            // Funkcja Rosenbrocka
+            const rosenbrock = (x, y) => Math.pow(1 - x, 2) + 100 * Math.pow(y - x * x, 2);
+
+            // Rysowanie poziomicy
+            for (let level of contourLevels) {
+                // Kolor zależny od poziomu
+                const hue = 240 * (1 - Math.log(level) / Math.log(1000));
+                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                ctx.lineWidth = 1;
+
+                // Punkty dla elipsy danego poziomu
+                const points = [];
+
+                // Próbkowanie funkcji dla wykresu konturowego
+                for (let i = 0; i < 100; i++) {
+                    for (let j = 0; j < 100; j++) {
+                        const x = -2 + 4 * i / 99;
+                        const y = -1 + 4 * j / 99;
+
+                        // Sprawdzenie czy ten punkt jest na konturze
+                        const val = rosenbrock(x, y);
+
+                        if (Math.abs(val - level) < 50) {
+                            points.push([x, y]);
+                        }
+                    }
+                }
+
+                // Rysowanie poziomicy jeśli mamy wystarczającą liczbę punktów
+                if (points.length > 0) {
+                    // Sortowanie punktów dla lepszego rysowania
+                    points.sort((a, b) => a[0] - b[0]);
+
+                    ctx.beginPath();
+                    let first = true;
+
+                    for (const [x, y] of points) {
+                        const px = mapX(x);
+                        const py = mapY(y);
+
+                        if (first) {
+                            ctx.moveTo(px, py);
+                            first = false;
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    }
+
+                    ctx.stroke();
+                }
+            }
+
+            // Punkt minimum funkcji (x=1, y=1)
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(mapX(1), mapY(1), 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.fillText('(1,1)', mapX(1) + 10, mapY(1));
+
+            // Podziałka na osiach
+            ctx.textAlign = 'center';
+            for (let x = -2; x <= 2; x += 0.5) {
+                const px = mapX(x);
+                ctx.beginPath();
+                ctx.moveTo(px, canvas.height - margin - 5);
+                ctx.lineTo(px, canvas.height - margin + 5);
+                ctx.stroke();
+                ctx.fillText(x.toFixed(1), px, canvas.height - margin + 15);
+            }
+
+            ctx.textAlign = 'right';
+            for (let y = -1; y <= 3; y += 0.5) {
+                const py = mapY(y);
+                ctx.beginPath();
+                ctx.moveTo(margin - 5, py);
+                ctx.lineTo(margin + 5, py);
+                ctx.stroke();
+                ctx.fillText(y.toFixed(1), margin - 8, py + 4);
+            }
+        }
+
+        // Renderowanie modelu Kuramoto
+        renderKuramotoModel(container) {
+            container.innerHTML = '<canvas width="400" height="300"></canvas>';
+            const canvas = container.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Ustawienie układu współrzędnych
+            const margin = 40;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+
+            // Tytuł i podtytuły
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText('Przejście fazowe dla modelu Kuramoto: parametr porządku r', canvas.width/2, 20);
+            ctx.fillText('w funkcji siły sprzężenia K', canvas.width/2, 40);
+
+            // Rysowanie osi
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(canvas.width - margin, canvas.height - margin); // Oś X
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(margin, margin); // Oś Y
+            ctx.stroke();
+
+            // Etykiety osi
+            ctx.fillText('K (siła sprzężenia)', canvas.width/2, canvas.height - 5);
+
+            ctx.save();
+            ctx.translate(15, canvas.height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('r (parametr porządku)', 0, 0);
+            ctx.restore();
+
+            // Rysowanie krzywej sigmoidalnej dla przejścia fazowego
+            ctx.beginPath();
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 2;
+
+            // Mapowanie współrzędnych
+            const mapX = x => margin + (x * width / 10); // K od 0 do 10
+            const mapY = r => canvas.height - margin - (r * height); // r od 0 do 1
+
+            // Rysowanie krzywej sigmoidalnej
+            for (let k = 0; k <= 10; k += 0.1) {
+                // Funkcja sigmoidalna z przejściem około K=4
+                const r = 1 / (1 + Math.exp(-2 * (k - 4)));
+                const x = mapX(k);
+                const y = mapY(r);
+
+                if (k === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Rysowanie podziałki osi i etykiet
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.textAlign = 'center';
+
+            // Podziałka osi X
+            for (let k = 0; k <= 10; k += 2) {
+                const x = mapX(k);
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height - margin - 5);
+                ctx.lineTo(x, canvas.height - margin + 5);
+                ctx.stroke();
+                ctx.fillText(k.toString(), x, canvas.height - margin + 20);
+            }
+
+            // Podziałka osi Y
+            ctx.textAlign = 'right';
+            for (let r = 0; r <= 1; r += 0.2) {
+                const y = mapY(r);
+                ctx.beginPath();
+                ctx.moveTo(margin - 5, y);
+                ctx.lineTo(margin + 5, y);
+                ctx.stroke();
+                ctx.fillText(r.toFixed(1), margin - 10, y + 4);
+            }
+        }
+
+        // Renderowanie podstawowego wykresu (dla nieznanych typów)
+        renderDefaultPlot(container) {
+            container.innerHTML = `
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #f5f5f5;">
+                <div style="text-align: center;">
+                    <div style="font-style: italic;">Wykres TikZ</div>
+                </div>
+            </div>
+        `;
+        }
+
+        // Przygotowanie pełnego dokumentu do drukowania
+        preparePrintDocument() {
+            const printContainer = document.getElementById('print-document-container');
+            if (!printContainer) return;
+
+            // Pobierz aktualną zawartość dokumentu
+            const output = document.getElementById('output');
+            if (!output) return;
+
+            // Klonuj zawartość do kontenera drukowania
+            printContainer.innerHTML = '';
+            printContainer.appendChild(output.cloneNode(true));
+
+            return printContainer;
+        }
+    }
+
+    // Inicjalizacja kompilatora
+    const compiler = new LaTeXCompiler();
+    const latexEditor = document.getElementById('latex-editor');
+    const output = document.getElementById('output');
+    const compileBtn = document.getElementById('compile-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const printBtn = document.getElementById('print-btn');
+    const debugBtn = document.getElementById('debug-btn');
+    const debugPanel = document.getElementById('debug-panel');
+    const renderTime = document.getElementById('render-time');
+
+    // Funkcja kompilująca dokument
+    function compileDocument() {
+        const startTime = performance.now();
+
+        try {
+            // Pobierz kod LaTeX
+            const latexCode = latexEditor.value;
+
+            // Pokaż komunikat o kompilacji
+            output.innerHTML = '<div style="padding: 20px; text-align: center;">Kompilowanie...</div>';
+
+            // Kompiluj dokument
+            const html = compiler.compile(latexCode);
+
+            // Wyświetl wynik
+            output.innerHTML = html;
+
+            // Wyrenderuj matematykę
+            if (window.MathJax) {
+                try {
+                    window.MathJax.typesetPromise().then(() => {
+                        compiler.log('MathJax renderowanie zakończone');
+                    }).catch(err => {
+                        compiler.log(`Błąd renderowania MathJax: ${err.message}`);
+                    });
+                } catch (error) {
+                    compiler.log(`Błąd renderowania MathJax: ${error.message}`);
+                }
+            }
+
+            // Uzupełnij spisy
+            setTimeout(() => {
+                compiler.populateListings();
+
+                // Renderuj wykresy
+                setTimeout(() => {
+                    compiler.renderPlots();
+
+                    // Wyświetl czas kompilacji
+                    const endTime = performance.now();
+                    renderTime.textContent = `Czas: ${Math.round(endTime - startTime)}ms`;
+                }, 100);
+            }, 100);
+        } catch (error) {
+            output.innerHTML = `<div class="error-message">Błąd kompilacji: ${error.message}</div>`;
+            compiler.log(`Błąd główny: ${error.message}`);
+            compiler.setStatus('error', `Błąd: ${error.message}`);
+        }
+    }
+
+    // Funkcja drukowania całego dokumentu
+    function printDocument() {
+        try {
+            // Stwórz tymczasowy element dla całego dokumentu
+            const printContainer = document.getElementById('print-document-container');
+            printContainer.innerHTML = '';
+
+            // Klonuj zawartość dokumentu
+            const outputClone = output.cloneNode(true);
+            printContainer.appendChild(outputClone);
+
+            // Dodaj style drukowania
+            const style = document.createElement('style');
+            style.textContent = `
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .latex-paper {
+                box-shadow: none;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            figure, table, .math-display {
+                page-break-inside: avoid;
+            }
+
+            .chapter {
+                page-break-before: always;
+            }
+
+            .toc, .lof, .lot {
+                page-break-after: always;
+            }
+        `;
+            printContainer.appendChild(style);
+
+            // Drukuj dokument
+            window.print();
+        } catch (error) {
+            compiler.log(`Błąd drukowania: ${error.message}`);
+            alert('Wystąpił błąd podczas przygotowywania dokumentu do druku.');
+        }
+    }
+
+    // Obsługa przycisków
+    compileBtn.addEventListener('click', compileDocument);
+
+    clearBtn.addEventListener('click', () => {
+        latexEditor.value = '';
+        output.innerHTML = '';
+        compiler.setStatus('success', 'Edytor wyczyszczony');
+        renderTime.textContent = '';
+    });
+
+    fullscreenBtn.addEventListener('click', () => {
+        const previewContainer = document.querySelector('.preview-container');
+        previewContainer.classList.toggle('fullscreen');
+
+        if (previewContainer.classList.contains('fullscreen')) {
+            fullscreenBtn.textContent = 'Zamknij pełny ekran';
+        } else {
+            fullscreenBtn.textContent = 'Pełny ekran';
+        }
+    });
+
+    printBtn.addEventListener('click', printDocument);
+
+    debugBtn.addEventListener('click', () => {
+        debugPanel.classList.toggle('visible');
+
+        if (debugPanel.classList.contains('visible')) {
+            debugBtn.textContent = 'Ukryj debug';
+        } else {
+            debugBtn.textContent = 'Debug';
+        }
+    });
+
+    // Auto-dostosowanie wysokości textarea
+    latexEditor.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Inicjalizacja przy załadowaniu strony
+    window.addEventListener('load', () => {
+        // Dostosuj wysokość textarea
+        latexEditor.style.height = (latexEditor.scrollHeight) + 'px';
+
+        // Pokazuj panel debugowania
+        debugPanel.classList.add('visible');
+
+        // Kompiluj dokument
+        setTimeout(compileDocument, 500);
     });
 </script>
 </body>
