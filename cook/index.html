@@ -36,9 +36,9 @@
             --border-light: #f1f3f5;
 
             /* Cienie */
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
             /* Zaokrąglenia */
             --radius-sm: 8px;
@@ -88,9 +88,9 @@
             --border: #3e4042;
             --border-light: #4a4b4d;
 
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
-            --shadow: 0 4px 12px rgba(0,0,0,0.25);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         /* ============= RESET I PODSTAWY ============= */
@@ -521,13 +521,25 @@
         }
 
         @keyframes pulse {
-            from { transform: scale(1); opacity: 0.8; }
-            to { transform: scale(1.1); opacity: 1; }
+            from {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            to {
+                transform: scale(1.1);
+                opacity: 1;
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ============= KARTY PRZEPISÓW ============= */
@@ -597,7 +609,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.4));
+            background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
         }
 
         .recipe-card-category {
@@ -1017,8 +1029,14 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         /* ============= SKROLOWALNA ZAWARTOŚĆ ============= */
@@ -1063,8 +1081,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* ============= POWIADOMIENIA ============= */
@@ -1103,6 +1125,78 @@
         .notification-message {
             font-size: 0.9rem;
             color: var(--text);
+        }
+
+        /* ============= PRZYPOMNIENIE O PRZEPISIE ============= */
+        .recipe-reminder {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            max-width: 400px;
+            animation: slideInUp 0.3s ease forwards;
+            display: flex;
+        }
+
+        .recipe-reminder-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .recipe-reminder-icon {
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        .recipe-reminder-message {
+            font-size: 0.95rem;
+            color: var(--text);
+            flex-grow: 1;
+            margin-bottom: 8px;
+        }
+
+        .recipe-reminder-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .recipe-reminder .btn-return,
+        .recipe-reminder .btn-dismiss {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+        }
+
+        .recipe-reminder .btn-return {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .recipe-reminder .btn-dismiss {
+            background-color: var(--secondary);
+            color: var(--text);
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -1293,30 +1387,117 @@
                 const trimmedItem = item.trim();
                 if (!trimmedItem) return null;
 
-                // Wykrywanie ilości i nazwy
-                const amountRegex = /^([0-9.,/]+(\s*[a-zA-Z]+)?)/;
+                // Usprawnienie rozpoznawania ilości i jednostek
+                // Wykrywa liczby, ułamki, zakres (np. 2-3) z opcjonalną jednostką miary
+                const amountRegex = /^([0-9.,/-]+(\s*[-–—]\s*[0-9.,/]+)?(\s*[a-zA-ZłĄąĆćĘęŁłŃńÓóŚśŹźŻż]+)?)/i;
                 const match = trimmedItem.match(amountRegex);
 
                 let amount, name;
 
-                if (match) {
+                if (match && match[0].trim() !== trimmedItem) {
+                    // Znaleziono wartość liczbową i jest ona częścią (nie całością) tekstu
                     amount = match[0].trim();
                     name = trimmedItem.substring(match[0].length).trim();
+                } else if (match && match[0].trim() === trimmedItem) {
+                    // Cały string jest wartością liczbową (niespodziewany przypadek)
+                    amount = trimmedItem;
+                    name = "";
                 } else {
-                    // Proste rozdzielenie po pierwszym słowie
-                    const parts = trimmedItem.split(' ');
-                    amount = parts[0];
-                    name = parts.slice(1).join(' ');
+                    // Brak wartości liczbowej na początku - sprawdźmy czy to przypadek typu "sól" czy "pieprz"
+                    // gdzie nie ma ilości
+                    if (trimmedItem.indexOf(' ') === -1) {
+                        // Pojedyncze słowo bez liczby - traktujemy jako nazwę bez ilości
+                        amount = "";
+                        name = trimmedItem;
+                    } else {
+                        // Kilka słów bez rozpoznanej ilości - próbujemy podzielić po pierwszym słowie
+                        const parts = trimmedItem.split(' ');
+                        amount = parts[0];
+                        name = parts.slice(1).join(' ');
+                    }
                 }
 
-                // Obsługa specjalnych przypadków
-                if (name && (name.startsWith('do ') || name.startsWith('z '))) {
-                    const parts = amount.split(' ');
-                    name = parts[parts.length - 1] + " " + name;
-                    amount = parts.slice(0, -1).join(' ');
+                // Dodatkowe przetwarzanie dla polskich przypadków
+                // Obsługa przypadków jak "2 łyżki mąki", "1/4 szklanki cukru", itp.
+                if (name) {
+                    // Sprawdzenie, czy amount zawiera jednostkę która należy do nazwy
+                    const unitWords = ['łyżka', 'łyżki', 'łyżek', 'szklanka', 'szklanki', 'szklanek',
+                        'kg', 'g', 'ml', 'l', 'dag', 'dkg', 'sztuka', 'sztuki', 'sztuk'];
+
+                    // Rozdzielamy amount na słowa
+                    const amountWords = amount.split(' ');
+
+                    // Jeśli ostatnie słowo w amount to jednostka i jest więcej niż jedno słowo w amount
+                    if (amountWords.length > 1) {
+                        const lastWord = amountWords[amountWords.length - 1].toLowerCase();
+
+                        // Sprawdzamy czy ostatnie słowo jest liczbą (czyli nie jest jednostką)
+                        const isLastWordNumber = /^[0-9.,/]+$/.test(lastWord);
+
+                        if (!isLastWordNumber && !unitWords.some(unit => lastWord.includes(unit.toLowerCase()))) {
+                            // Ostatnie słowo nie jest liczbą ani znaną jednostką - przenieś do nazwy
+                            name = lastWord + " " + name;
+                            amount = amountWords.slice(0, -1).join(' ');
+                        }
+                    }
                 }
 
-                return { amount, name };
+                // Dodatkowa obsługa na przypadki typu "sól", "pieprz" bez ilości
+                if (amount && /^[a-zA-ZłĄąĆćĘęŁłŃńÓóŚśŹźŻż]+$/.test(amount) && name === "") {
+                    // amount to tylko litery i nie ma nazwy - przesuwamy do nazwy
+                    name = amount;
+                    amount = "";
+                }
+
+                // Obsługa przypadków "do smaku", "według uznania", itp.
+                if (name && (name.startsWith('do ') || name.startsWith('według ') || name.startsWith('wg '))) {
+                    if (amount === "") {
+                        // Jeśli nie ma ilości, to po prostu zostawiamy nazwę
+                        // Nic nie robimy
+                    } else if (/^[a-zA-ZłĄąĆćĘęŁłŃńÓóŚśŹźŻż]+$/.test(amount)) {
+                        // amount zawiera tylko litery - dołączamy do nazwy
+                        name = amount + " " + name;
+                        amount = "";
+                    }
+                }
+
+                // Obsługa przypadku, gdy amount zawiera literówkę lub jest ucięty
+                // Na przykład "mas" zamiast "masła" w "1/4 mas"
+                const commonAbbreviations = {
+                    'mas': 'masła',
+                    'cuk': 'cukru',
+                    'mak': 'mąki',
+                    'sol': 'soli',
+                    'pep': 'pieprzu',
+                    'ciast': 'ciasta',
+                    'matjas': 'matjasów',
+                    'jaj': 'jajek',
+                    'śmiet': 'śmietany',
+                    'śmietan': 'śmietany'
+                };
+
+                // Sprawdzenie ucięcia w amount
+                if (amount) {
+                    const amountParts = amount.split(' ');
+                    const lastAmountPart = amountParts[amountParts.length - 1];
+
+                    // Jeśli ostatnia część amount pasuje do znanych skrótów
+                    if (Object.keys(commonAbbreviations).some(abbr => lastAmountPart.toLowerCase() === abbr)) {
+                        const fullWord = commonAbbreviations[lastAmountPart.toLowerCase()];
+                        name = fullWord + (name ? " " + name : "");
+                        amount = amountParts.slice(0, -1).join(' ');
+                    }
+                }
+
+                // Sprawdzenie ucięcia w name
+                if (name && name.length < 5) {
+                    const lowerName = name.toLowerCase();
+                    if (Object.keys(commonAbbreviations).some(abbr => lowerName === abbr)) {
+                        name = commonAbbreviations[lowerName];
+                    }
+                }
+
+                return {amount, name};
             }).filter(Boolean); // Usuwanie pustych wartości
         }
 
@@ -1547,6 +1728,65 @@
             localStorage.setItem('darkMode', this.darkMode);
             return this.darkMode;
         }
+
+        /**
+         * Zapisuje informacje o aktualnie oglądanym przepisie na wypadek odświeżenia strony
+         */
+        saveCurrentRecipeForReload(recipe) {
+            if (!recipe) return;
+
+            try {
+                // Zapisujemy ID i tytuł przepisu
+                localStorage.setItem('lastViewedRecipeId', recipe.id);
+                localStorage.setItem('lastViewedRecipeTitle', recipe.title);
+                localStorage.setItem('lastViewedTimestamp', Date.now());
+            } catch (error) {
+                console.error('Błąd podczas zapisywania informacji o ostatnio oglądanym przepisie:', error);
+            }
+        }
+
+        /**
+         * Usuwa informacje o ostatnio oglądanym przepisie
+         */
+        clearLastViewedRecipe() {
+            try {
+                localStorage.removeItem('lastViewedRecipeId');
+                localStorage.removeItem('lastViewedRecipeTitle');
+                localStorage.removeItem('lastViewedTimestamp');
+            } catch (error) {
+                console.error('Błąd podczas usuwania informacji o ostatnio oglądanym przepisie:', error);
+            }
+        }
+
+        /**
+         * Sprawdza czy istnieje informacja o ostatnio oglądanym przepisie
+         */
+        checkForLastViewedRecipe() {
+            try {
+                const lastViewedRecipeId = localStorage.getItem('lastViewedRecipeId');
+                const lastViewedRecipeTitle = localStorage.getItem('lastViewedRecipeTitle');
+                const lastViewedTimestamp = localStorage.getItem('lastViewedTimestamp');
+
+                // Sprawdzamy czy dane istnieją i czy nie minęło zbyt dużo czasu (np. 30 minut)
+                if (lastViewedRecipeId && lastViewedRecipeTitle && lastViewedTimestamp) {
+                    const now = Date.now();
+                    const timeSinceLastView = now - parseInt(lastViewedTimestamp);
+
+                    // Jeśli minęło mniej niż 30 minut
+                    if (timeSinceLastView < 30 * 60 * 1000) {
+                        return {
+                            id: parseInt(lastViewedRecipeId),
+                            title: lastViewedRecipeTitle
+                        };
+                    }
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Błąd podczas sprawdzania ostatnio oglądanego przepisu:', error);
+                return null;
+            }
+        }
     }
 
     /**
@@ -1705,6 +1945,56 @@
             setTimeout(() => {
                 notification.classList.remove('show');
             }, duration);
+        }
+
+        /**
+         * Pokazuje przypomnienie o ostatnio oglądanym przepisie
+         */
+        showRecipeReminder(recipe, onRecipeClick) {
+            if (!this.isInitialized || !recipe) {
+                return;
+            }
+
+            // Tworzenie elementu przypomnienia
+            const reminderElement = document.createElement('div');
+            reminderElement.className = 'recipe-reminder';
+            reminderElement.innerHTML = `
+                <div class="recipe-reminder-content">
+                    <div class="recipe-reminder-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="recipe-reminder-message">
+                        Byłaś na przepisie "${recipe.title}". Czy chcesz do niego powrócić?
+                    </div>
+                    <div class="recipe-reminder-actions">
+                        <button class="btn-return">Tak</button>
+                        <button class="btn-dismiss">Nie</button>
+                    </div>
+                </div>
+            `;
+
+            // Dodanie elementu do body
+            document.body.appendChild(reminderElement);
+
+            // Obsługa przycisków
+            const returnBtn = reminderElement.querySelector('.btn-return');
+            const dismissBtn = reminderElement.querySelector('.btn-dismiss');
+
+            returnBtn.addEventListener('click', () => {
+                onRecipeClick(recipe.id);
+                document.body.removeChild(reminderElement);
+            });
+
+            dismissBtn.addEventListener('click', () => {
+                document.body.removeChild(reminderElement);
+            });
+
+            // Automatyczne usunięcie po 10 sekundach
+            setTimeout(() => {
+                if (document.body.contains(reminderElement)) {
+                    document.body.removeChild(reminderElement);
+                }
+            }, 10000);
         }
 
         /**
@@ -2027,7 +2317,8 @@
                                                     <i class="fas fa-check"></i>
                                                 </div>
                                                 <span>
-                                                    <span class="ingredient-amount">${ingredient.amount}</span>
+                                                    ${ingredient.amount ?
+                    `<span class="ingredient-amount">${ingredient.amount}</span> ` : ''}
                                                     ${ingredient.name}
                                                 </span>
                                             </div>
@@ -2073,7 +2364,7 @@
                 return;
             }
 
-            const { query, exact, partial, totalCount, shortWords } = results;
+            const {query, exact, partial, totalCount, shortWords} = results;
 
             this.elements.mainContainer.innerHTML = `
                     <div class="back-btn" id="backToHome">
@@ -2143,7 +2434,7 @@
          * Tworzy element wyniku wyszukiwania
          */
         createSearchResultItem(match, query) {
-            const { recipe, matchInfo } = match;
+            const {recipe, matchInfo} = match;
 
             // Przygotowanie informacji o dopasowaniach
             let matchText = '';
@@ -2483,6 +2774,12 @@
                 this.view.renderCategoryList(this.model.categories, this.handleCategoryClick.bind(this));
                 this.view.renderRecentRecipes(this.model.recentRecipes, this.handleRecipeClick.bind(this));
 
+                // Sprawdzenie, czy jest ostatnio oglądany przepis
+                const lastViewedRecipe = this.model.checkForLastViewedRecipe();
+                if (lastViewedRecipe) {
+                    this.view.showRecipeReminder(lastViewedRecipe, this.handleRecipeClick.bind(this));
+                }
+
                 // Ukrycie loadera
                 this.view.setLoading(false);
 
@@ -2538,6 +2835,9 @@
                 return;
             }
 
+            // Usunięcie ostatnio oglądanego przepisu
+            this.model.clearLastViewedRecipe();
+
             const recipes = this.model.getRecipesByCategory(category);
             this.view.renderCategoryPage(category, recipes, this.handleRecipeClick.bind(this));
         }
@@ -2560,6 +2860,9 @@
 
                 // Zapisanie aktualnego przepisu
                 this.model.currentRecipe = recipe;
+
+                // Zapisanie informacji o oglądanym przepisie na wypadek odświeżenia
+                this.model.saveCurrentRecipeForReload(recipe);
 
                 // Wyświetlenie szczegółów przepisu
                 this.view.renderRecipeDetail(recipe, () => {
@@ -2593,6 +2896,9 @@
                 return;
             }
 
+            // Usunięcie ostatnio oglądanego przepisu
+            this.model.clearLastViewedRecipe();
+
             const results = this.model.searchRecipes(query);
             this.view.renderSearchResults(results, this.handleRecipeClick.bind(this));
         }
@@ -2605,6 +2911,9 @@
                 console.warn("Próba obsługi kliknięcia logo bez zainicjalizowanej aplikacji");
                 return;
             }
+
+            // Usunięcie ostatnio oglądanego przepisu
+            this.model.clearLastViewedRecipe();
 
             this.view.renderWelcomeScreen();
             this.view.renderFeaturedCategories(this.model.categories, this.handleCategoryClick.bind(this));
