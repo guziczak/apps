@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JM Księgowość - Profesjonalne Biuro Rachunkowe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-spinner"></div>
+            <div class="preloader-text">Ładowanie...</div>
+        </div>
+    </div>
+
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <span>JM Księgowość</span>
+            </a>
+            
+            <nav>
+                <ul class="nav-menu" id="navMenu">
+                    <!-- Menu items loaded via JavaScript -->
+                </ul>
+            </nav>
+            
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Zmień motyw">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+                    <i class="fas fa-bars" id="menuIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Sidebar dla mobilnej nawigacji -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-profile">
+            <div class="sidebar-profile-img">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="sidebar-profile-info">
+                <h3>JM Księgowość</h3>
+                <p>Biuro rachunkowe</p>
+            </div>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+            
+        <div class="sidebar-nav">
+            <!-- Menu items loaded via JavaScript -->
+        </div>
+        
+        <div class="quick-actions">
+            <!-- Quick actions loaded via JavaScript -->
+        </div>
+        
+        <div class="sidebar-theme">
+            <span>Tryb ciemny</span>
+            <label class="switch">
+                <input type="checkbox" id="sidebarThemeToggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Ciemne tło dla sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Profesjonalna obsługa księgowa <span>dla Twojego biznesu</span></h1>
+                <p class="hero-subtitle">Zaufaj ekspertom z wieloletnim doświadczeniem w księgowości i podatkach. Pozwól nam zadbać o finanse Twojej firmy, abyś mógł skupić się na jej rozwoju.</p>
+                <div class="hero-buttons">
+                    <a href="#services" class="hero-btn">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Nasze usługi</span>
+                    </a>
+                    <a href="#contact" class="hero-btn secondary">
+                        <i class="fas fa-envelope"></i>
+                        <span>Kontakt</span>
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://img.freepik.com/free-vector/accountant-concept-illustration_114360-3270.jpg?w=826&t=st=1715019275~exp=1715019875~hmac=3c85ffe20c07bb6ca1ffddf31dd89fbda50d85d9de1e28f9e3f1b5ff3dade85a" alt="Księgowość i rachunkowość">
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nasze Usługi</h2>
+                <p>Oferujemy kompleksową obsługę księgową i podatkową dla firm z różnych branż, dopasowaną do indywidualnych potrzeb każdego klienta.</p>
+            </div>
+
+            <div class="services-grid">
+                <!-- Services loaded via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container about-container">
+            <div class="about-image">
+                <img src="https://img.freepik.com/free-vector/accounting-concept-illustration_114360-1423.jpg?w=826&t=st=1715019375~exp=1715019975~hmac=a3f5ef7fb51d617dd2efc10f03e48f4d2fc1f28b52c8d1fe5e95b53fcb050ee3" alt="Biuro rachunkowe JM Księgowość">
+            </div>
+            <div class="about-content">
+                <span class="about-subtitle">O nas</span>
+                <h2 class="about-title">Twój zaufany partner w księgowości</h2>
+                <p class="about-desc">
+                    JM Księgowość to profesjonalne biuro rachunkowe z wieloletnim doświadczeniem w obsłudze firm z różnych branż. Nasz zespół tworzą wykwalifikowani księgowi i doradcy podatkowi, którzy nieustannie podnoszą swoje kwalifikacje.
+                </p>
+                <p class="about-desc">
+                    Naszą misją jest zapewnienie kompleksowej obsługi księgowej i podatkowej, która pozwoli naszym klientom skupić się na rozwoju własnego biznesu. Łączymy profesjonalizm z indywidualnym podejściem do każdego klienta.
+                </p>
+                <div class="about-features">
+                    <!-- Features loaded via JavaScript -->
+                </div>
+                <a href="#contact" class="hero-btn">
+                    <i class="fas fa-envelope"></i>
+                    <span>Skontaktuj się z nami</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Kontakt</h2>
+                <p>Skontaktuj się z nami, aby uzyskać więcej informacji o naszych usługach lub umówić się na bezpłatną konsultację.</p>
+            </div>
+
+            <div class="contact-container">
+                <div class="contact-info">
+                    <span class="contact-subtitle">Dane kontaktowe</span>
+                    <h2 class="contact-title">Jesteśmy do Twojej dyspozycji</h2>
+                    <p class="contact-desc">
+                        Możesz skontaktować się z nami telefonicznie, mailowo lub odwiedzić nasze biuro osobiście. Służymy pomocą w kwestiach księgowych i podatkowych.
+                    </p>
+                    <!-- Contact methods loaded via JavaScript -->
+                </div>
+
+                <div class="contact-form-container">
+                    <div class="alert alert-success" id="formSuccessAlert">
+                        Twoja wiadomość została wysłana. Dziękujemy za kontakt!
+                    </div>
+                    <div class="alert alert-error" id="formErrorAlert">
+                        Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie lub skontaktuj się z nami telefonicznie.
+                    </div>
+
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Imię i nazwisko</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <input type="tel" id="phone" name="phone" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Temat</label>
+                            <input type="text" id="subject" name="subject" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message" class="form-label">Wiadomość</label>
+                            <textarea id="message" name="message" class="form-control" required></textarea>
+                        </div>
+
+                        <button type="submit" class="form-submit-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Wyślij wiadomość</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-col">
+                <div class="footer-logo">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>JM Księgowość</span>
+                </div>
+                <p class="footer-desc">
+                    Profesjonalne biuro rachunkowe oferujące kompleksową obsługę księgową i podatkową dla firm z różnych branż.
+                </p>
+                <div class="social-links">
+                    <!-- Social links loaded via JavaScript -->
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-title">Usługi</h4>
+                <div class="footer-links">
+                    <!-- Service links loaded via JavaScript -->
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-title">Przydatne linki</h4>
+                <div class="footer-links">
+                    <!-- Useful links loaded via JavaScript -->
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-title">Kontakt</h4>
+                <!-- Contact info loaded via JavaScript -->
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="copyright">
+                &copy; 2025 JM Księgowość - Biuro Rachunkowe. Wszystkie prawa zastrzeżone.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTopBtn" aria-label="Powrót do góry">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data-loader.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
