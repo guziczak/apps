@@ -200,7 +200,7 @@ function handleFormSubmit() {
 function useFallbackMailto(name, email, phone, subject, message) {
     // Odczytanie adresu email z pliku konfiguracyjnego
     // W przypadku braku, użyj domyślnego
-    const contactEmail = 'kontakt@finbilans.pl';
+    const contactEmail = 'kontakt@jm-biuroksiega.pl';
     
     const mailtoLink = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Imię i nazwisko: ${name}\nEmail: ${email}\nTelefon: ${phone || 'Nie podano'}\n\n${message}`)}`;
     
