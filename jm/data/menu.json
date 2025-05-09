@@ -43,7 +43,7 @@
     {
       "id": "location",
       "text": "Mapa",
-      "link": "https://www.google.com/maps/search/?api=1&query=Warsaw+Spire,+Plac+Europejski+1,+00-844+Warszawa",
+      "link": "https://www.google.com/maps/search/?api=1&query=ul.+Legnicka+1/1,+53-674+Wrocław",
       "icon": "fa-map-marker-alt",
       "color": "#FF5722"
     }
