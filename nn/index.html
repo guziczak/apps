@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+    <title>Kubek Hermaty - River Ride</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- HUD -->
+    <div id="hud">
+        <div class="hud-top">
+            <div class="hud-item">
+                <span class="hud-label">DYSTANS</span>
+                <span id="distance" class="hud-value">0m</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">PRĘDKOŚĆ</span>
+                <span id="speed" class="hud-value">0</span>
+            </div>
+        </div>
+        <div class="hud-center">
+            <div id="powerup-indicator" class="powerup-indicator hidden">
+                <span id="powerup-text"></span>
+                <div class="powerup-timer-bar">
+                    <div id="powerup-timer-fill"></div>
+                </div>
+            </div>
+        </div>
+        <div class="hud-bottom">
+            <div class="health-container">
+                <span class="hud-label">ŻYCIE</span>
+                <div class="health-bar">
+                    <div id="health-fill" class="health-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Start Screen -->
+    <div id="startScreen">
+        <h1>🪣 KUBEK HERMATY 🎩</h1>
+        <p>Płyń rzeką w różowej czapce!</p>
+        <button id="startBtn">START</button>
+        <div class="instructions">
+            <p>🎮 Sterowanie:</p>
+            <p>Dotknij lewo/prawo aby kierować</p>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="hidden">
+        <h1>KONIEC GRY</h1>
+        <p>Przejechano: <span id="finalDistance">0</span>m</p>
+        <button id="restartBtn">JESZCZE RAZ</button>
+    </div>
+
+    <script src="sounds.js"></script>
+    <script src="hud.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
