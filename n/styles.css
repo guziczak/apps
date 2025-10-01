@@ -1,0 +1,212 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+    position: fixed;
+    touch-action: none;
+}
+
+#gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+/* HUD Styles */
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    color: white;
+    font-weight: bold;
+}
+
+.hud-top {
+    position: absolute;
+    top: env(safe-area-inset-top, 10px);
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 20px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.hud-label {
+    font-size: 12px;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+.hud-value {
+    font-size: 24px;
+    margin-top: 5px;
+    color: #FFD700;
+}
+
+.hud-bottom {
+    position: absolute;
+    bottom: env(safe-area-inset-bottom, 20px);
+    left: 20px;
+    right: 20px;
+}
+
+.health-container {
+    background: rgba(0,0,0,0.5);
+    padding: 10px 15px;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+}
+
+.health-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 5px;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.health-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #FF6B6B, #FF8E53);
+    transition: width 0.3s ease;
+    border-radius: 8px;
+}
+
+/* Start Screen */
+#startScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    color: white;
+}
+
+#startScreen h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+#startScreen p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+button {
+    padding: 15px 40px;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.instructions {
+    margin-top: 40px;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.instructions p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+/* Game Over Screen */
+#gameOverScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    color: white;
+}
+
+#gameOverScreen h1 {
+    font-size: 42px;
+    margin-bottom: 20px;
+    color: #FF6B6B;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+}
+
+#gameOverScreen p {
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+#finalDistance {
+    color: #FFD700;
+    font-size: 32px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive for iPhone 15 Pro Max */
+@media (min-width: 430px) {
+    .hud-value {
+        font-size: 28px;
+    }
+
+    #startScreen h1 {
+        font-size: 42px;
+    }
+}
