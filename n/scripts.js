@@ -31,16 +31,88 @@ const player = {
     velocityX: 0,
     velocityY: 0,
     rotation: 0,
-    speed: 0
+    speed: 0,
+    expression: 'happy', // happy, surprised, trippy, scared, crazy, bugged
+    expressionTimer: 0,
+    powerUp: null, // 'ecstasy', 'coffee', 'beer'
+    powerUpTimer: 0,
+    rainbowOffset: 0,
+    bankCollisionTimer: 0 // To avoid constant damage from banks
 };
 
-// River
+// River - winding river system
 const river = {
     speed: 2,
     lanes: [],
     obstacles: [],
-    waterY: 0
+    waterY: 0,
+    path: [], // River path segments
+    width: 220, // River width (wider for mobile)
+    centerX: 0, // Current center position
+    pathOffset: 0 // Global offset for path generation
 };
+
+// River path segment
+class RiverSegment {
+    constructor(y, centerX, width) {
+        this.y = y;
+        this.centerX = centerX;
+        this.width = width;
+    }
+}
+
+// Initialize river path
+function initRiverPath() {
+    river.path = [];
+
+    // Calculate how many segments we need
+    const numSegments = Math.ceil((canvas.height + 600) / 20);
+
+    // Start pathOffset at top (most negative)
+    river.pathOffset = -100;
+
+    let centerX = canvas.width / 2;
+
+    // Build from top to bottom
+    for (let i = 0; i < numSegments; i++) {
+        const y = -100 + i * 20;
+
+        // Create winding pattern with multiple waves for variety
+        const wiggle = Math.sin(river.pathOffset * 0.004) * 90 +
+                      Math.cos(river.pathOffset * 0.007) * 50 +
+                      Math.sin(river.pathOffset * 0.002) * 30;
+        centerX = canvas.width / 2 + wiggle;
+
+        // Keep river on screen
+        centerX = Math.max(river.width / 2 + 50, Math.min(canvas.width - river.width / 2 - 50, centerX));
+
+        river.path.push(new RiverSegment(y, centerX, river.width));
+        river.pathOffset += 20;
+    }
+
+    // Reset pathOffset to the top position for continuous generation
+    river.pathOffset = -100;
+}
+
+// Get river center at specific Y position
+function getRiverCenterAt(y) {
+    // Find closest segments
+    for (let i = 0; i < river.path.length - 1; i++) {
+        if (river.path[i].y <= y && river.path[i + 1].y >= y) {
+            // Interpolate between segments
+            const t = (y - river.path[i].y) / (river.path[i + 1].y - river.path[i].y);
+            return river.path[i].centerX + (river.path[i + 1].centerX - river.path[i].centerX) * t;
+        }
+    }
+    return canvas.width / 2;
+}
+
+// Check if point is in river
+function isInRiver(x, y) {
+    const centerX = getRiverCenterAt(y);
+    const halfWidth = river.width / 2;
+    return x >= centerX - halfWidth && x <= centerX + halfWidth;
+}
 
 // Particle system for water splashes
 const particles = [];
@@ -120,19 +192,47 @@ canvas.addEventListener('mouseup', () => {
     touchX = null;
 });
 
-// Generate obstacles
+// Generate obstacles and power-ups
 function generateObstacle() {
     if (Math.random() < 0.02) {
         const types = ['rock', 'log', 'duck'];
         const type = types[Math.floor(Math.random() * types.length)];
+
+        // Place in river
+        const y = -50;
+        const centerX = getRiverCenterAt(y);
+        const offsetX = (Math.random() - 0.5) * (river.width * 0.6);
+
         const obstacle = {
-            x: Math.random() * (canvas.width - 50) + 25,
-            y: -50,
+            x: centerX + offsetX,
+            y: y,
             width: type === 'duck' ? 40 : 50,
             height: type === 'duck' ? 40 : 50,
             type: type
         };
         river.obstacles.push(obstacle);
+    }
+
+    // Generate power-ups
+    if (Math.random() < 0.005) {
+        const powerUpTypes = ['ecstasy', 'coffee', 'beer'];
+        const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+
+        // Place in river
+        const y = -50;
+        const centerX = getRiverCenterAt(y);
+        const offsetX = (Math.random() - 0.5) * (river.width * 0.5);
+
+        const powerUp = {
+            x: centerX + offsetX,
+            y: y,
+            width: 30,
+            height: 30,
+            type: 'powerup',
+            powerUpType: type,
+            rotation: 0
+        };
+        river.obstacles.push(powerUp);
     }
 }
 
@@ -142,103 +242,431 @@ function drawPlayer() {
     ctx.translate(player.x, player.y);
     ctx.rotate(player.rotation);
 
-    // Bucket (hermaty)
-    ctx.fillStyle = '#8B4513';
+    // Rainbow aura for ecstasy mode
+    if (player.powerUp === 'ecstasy') {
+        for (let i = 0; i < 5; i++) {
+            const hue = (player.rainbowOffset + i * 60) % 360;
+            ctx.strokeStyle = `hsla(${hue}, 100%, 50%, ${0.5 - i * 0.08})`;
+            ctx.lineWidth = 15 - i * 2;
+            ctx.beginPath();
+            ctx.arc(0, -10, 50 + i * 8, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    // KUBEK (prawdziwy kubek z uchem!)
+    // Main cup body
+    ctx.fillStyle = player.powerUp === 'ecstasy' ?
+        `hsl(${player.rainbowOffset}, 80%, 60%)` : '#FF6347';
+
+    // Front of cup
     ctx.beginPath();
-    ctx.moveTo(-30, 20);
-    ctx.lineTo(-25, -10);
-    ctx.lineTo(25, -10);
-    ctx.lineTo(30, 20);
+    ctx.moveTo(-28, 25);
+    ctx.lineTo(-25, -8);
+    ctx.bezierCurveTo(-25, -12, 25, -12, 25, -8);
+    ctx.lineTo(28, 25);
+    ctx.bezierCurveTo(28, 28, -28, 28, -28, 25);
     ctx.closePath();
     ctx.fill();
 
-    // Bucket rim
-    ctx.fillStyle = '#A0522D';
-    ctx.fillRect(-30, -15, 60, 8);
+    // Cup shine
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.beginPath();
+    ctx.ellipse(-10, 0, 8, 20, -0.3, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Water in bucket
-    ctx.fillStyle = 'rgba(64, 164, 223, 0.5)';
-    ctx.fillRect(-25, -8, 50, 18);
+    // Cup rim
+    ctx.fillStyle = player.powerUp === 'ecstasy' ?
+        `hsl(${(player.rainbowOffset + 60) % 360}, 80%, 50%)` : '#DC143C';
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 28, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // "HERMATA" text on cup
+    ctx.fillStyle = '#FFF';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('HERMATA', 0, 12);
+
+    // Cup handle
+    ctx.strokeStyle = player.powerUp === 'ecstasy' ?
+        `hsl(${(player.rainbowOffset + 120) % 360}, 80%, 60%)` : '#FF6347';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(30, 8, 12, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+
+    // Inner handle shadow
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(30, 8, 10, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+
+    // Water/liquid in cup
+    const liquidColor = player.powerUp === 'ecstasy' ?
+        `hsla(${player.rainbowOffset}, 100%, 70%, 0.6)` : 'rgba(64, 164, 223, 0.5)';
+    ctx.fillStyle = liquidColor;
+    ctx.beginPath();
+    ctx.ellipse(0, -5, 22, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
 
     // Person body
     ctx.fillStyle = '#FFE4C4';
     ctx.beginPath();
-    ctx.ellipse(0, -20, 15, 20, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, -18, 13, 18, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Arms
+    // Arms - animated if trippy
+    const armWave = player.powerUp === 'ecstasy' ? Math.sin(Date.now() * 0.01) * 5 : 0;
     ctx.strokeStyle = '#FFE4C4';
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(-10, -15);
-    ctx.lineTo(-20, -5);
+    ctx.moveTo(-8, -15);
+    ctx.lineTo(-18 + armWave, -8);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(10, -15);
-    ctx.lineTo(20, -5);
+    ctx.moveTo(8, -15);
+    ctx.lineTo(18 - armWave, -8);
     ctx.stroke();
 
     // Head
     ctx.fillStyle = '#FFDAB9';
     ctx.beginPath();
-    ctx.arc(0, -35, 12, 0, Math.PI * 2);
+    ctx.arc(0, -33, 13, 0, Math.PI * 2);
     ctx.fill();
 
     // Pink Hat
-    ctx.fillStyle = '#FF69B4';
+    const hatHue = player.powerUp === 'ecstasy' ? player.rainbowOffset : 330;
+    ctx.fillStyle = player.powerUp === 'ecstasy' ?
+        `hsl(${hatHue}, 100%, 70%)` : '#FF69B4';
+
     // Hat brim
     ctx.beginPath();
-    ctx.ellipse(0, -42, 18, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, -40, 20, 6, 0, 0, Math.PI * 2);
     ctx.fill();
     // Hat top
-    ctx.fillRect(-12, -55, 24, 15);
+    ctx.fillRect(-13, -56, 26, 16);
     ctx.beginPath();
-    ctx.arc(0, -55, 12, Math.PI, 0);
+    ctx.arc(0, -56, 13, Math.PI, 0);
     ctx.fill();
 
-    // Face details
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(-5, -35, 2, 0, Math.PI * 2);
-    ctx.arc(5, -35, 2, 0, Math.PI * 2);
-    ctx.fill();
+    // Hat decoration
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(-13, -42, 26, 3);
 
-    // Smile
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, -32, 5, 0, Math.PI);
-    ctx.stroke();
+    // FACIAL EXPRESSIONS
+    drawFace(player.expression);
 
     ctx.restore();
 }
 
+function drawFace(expression) {
+    ctx.fillStyle = '#000';
+
+    switch(expression) {
+        case 'happy':
+            // Eyes
+            ctx.beginPath();
+            ctx.arc(-5, -33, 2, 0, Math.PI * 2);
+            ctx.arc(5, -33, 2, 0, Math.PI * 2);
+            ctx.fill();
+            // Big smile
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -30, 6, 0, Math.PI);
+            ctx.stroke();
+            break;
+
+        case 'trippy':
+            // Spiral eyes
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 2; i++) {
+                const x = i === 0 ? -5 : 5;
+                ctx.beginPath();
+                for (let a = 0; a < Math.PI * 4; a += 0.2) {
+                    const r = a * 0.5;
+                    ctx.lineTo(x + Math.cos(a) * r, -33 + Math.sin(a) * r);
+                }
+                ctx.stroke();
+            }
+            // Wavy mouth
+            ctx.beginPath();
+            for (let x = -6; x <= 6; x += 1) {
+                const y = -28 + Math.sin(x * 0.5 + Date.now() * 0.01) * 2;
+                if (x === -6) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            break;
+
+        case 'surprised':
+            // Wide eyes
+            ctx.beginPath();
+            ctx.arc(-5, -33, 3, 0, Math.PI * 2);
+            ctx.arc(5, -33, 3, 0, Math.PI * 2);
+            ctx.fill();
+            // O mouth
+            ctx.beginPath();
+            ctx.arc(0, -28, 3, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+        case 'scared':
+            // Small eyes
+            ctx.beginPath();
+            ctx.arc(-5, -33, 1.5, 0, Math.PI * 2);
+            ctx.arc(5, -33, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            // Worried mouth
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -26, 4, Math.PI, 0);
+            ctx.stroke();
+            break;
+
+        case 'crazy':
+            // Different sized eyes
+            ctx.beginPath();
+            ctx.arc(-5, -33, 3, 0, Math.PI * 2);
+            ctx.arc(5, -35, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            // Crooked smile
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-6, -28);
+            ctx.quadraticCurveTo(0, -24, 6, -30);
+            ctx.stroke();
+            // Tongue out
+            ctx.fillStyle = '#FF69B4';
+            ctx.beginPath();
+            ctx.ellipse(3, -26, 3, 4, 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+        case 'bugged':
+            // HUGE bugged out eyes
+            ctx.fillStyle = '#FFF';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+
+            // Left eye - huge and popping
+            ctx.beginPath();
+            ctx.arc(-5, -33, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Left pupil - small and scared
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-4, -33, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Right eye - even bigger!
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath();
+            ctx.arc(6, -34, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Right pupil
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(7, -34, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wide open mouth O
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -27, 4, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Sweat drops
+            ctx.fillStyle = '#4dd2ff';
+            ctx.beginPath();
+            ctx.arc(-12, -30, 2, 0, Math.PI * 2);
+            ctx.arc(10, -28, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+    }
+}
+
 // Draw River
 function drawRiver() {
-    // Animated water
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#40A4DF');
-    gradient.addColorStop(0.5, '#5AB8E8');
-    gradient.addColorStop(1, '#40A4DF');
-
-    ctx.fillStyle = gradient;
+    // Draw background (grass/land)
+    ctx.fillStyle = '#2d5016';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Draw river path with banks
+    ctx.save();
+
+    // Update river path (scroll)
+    river.path.forEach(segment => {
+        segment.y += river.speed;
+    });
+
+    // Remove old segments that scrolled off bottom of screen
+    while (river.path.length > 0 && river.path[river.path.length - 1].y > canvas.height + 100) {
+        river.path.pop();
+    }
+
+    // Add new segments at the top
+    while (river.path.length === 0 || river.path[0].y > -100) {
+        const firstSegment = river.path[0];
+        const newY = firstSegment ? firstSegment.y - 20 : -100;
+
+        // Use pathOffset for continuous winding
+        river.pathOffset -= 20; // Move backwards for new segments at top
+        const wiggle = Math.sin(river.pathOffset * 0.004) * 90 +
+                      Math.cos(river.pathOffset * 0.007) * 50 +
+                      Math.sin(river.pathOffset * 0.002) * 30;
+        let centerX = canvas.width / 2 + wiggle;
+        centerX = Math.max(river.width / 2 + 50, Math.min(canvas.width - river.width / 2 - 50, centerX));
+        river.path.unshift(new RiverSegment(newY, centerX, river.width));
+    }
+
+    // Draw water
+    if (player.powerUp === 'ecstasy') {
+        // Rainbow water
+        for (let i = 0; i < river.path.length - 1; i++) {
+            const segment = river.path[i];
+            const nextSegment = river.path[i + 1];
+
+            const hue = (player.rainbowOffset + i * 10) % 360;
+            ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+
+            ctx.beginPath();
+            ctx.moveTo(segment.centerX - segment.width / 2, segment.y);
+            ctx.lineTo(segment.centerX + segment.width / 2, segment.y);
+            ctx.lineTo(nextSegment.centerX + nextSegment.width / 2, nextSegment.y);
+            ctx.lineTo(nextSegment.centerX - nextSegment.width / 2, nextSegment.y);
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else {
+        // Normal water
+        for (let i = 0; i < river.path.length - 1; i++) {
+            const segment = river.path[i];
+            const nextSegment = river.path[i + 1];
+
+            const gradient = ctx.createLinearGradient(
+                segment.centerX - segment.width / 2, segment.y,
+                segment.centerX + segment.width / 2, segment.y
+            );
+            gradient.addColorStop(0, '#2b6ca3');
+            gradient.addColorStop(0.5, '#3a8fc2');
+            gradient.addColorStop(1, '#2b6ca3');
+            ctx.fillStyle = gradient;
+
+            ctx.beginPath();
+            ctx.moveTo(segment.centerX - segment.width / 2, segment.y);
+            ctx.lineTo(segment.centerX + segment.width / 2, segment.y);
+            ctx.lineTo(nextSegment.centerX + nextSegment.width / 2, nextSegment.y);
+            ctx.lineTo(nextSegment.centerX - nextSegment.width / 2, nextSegment.y);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    // Draw river banks with grass
+    // Dark grass edge
+    ctx.strokeStyle = '#1a3d0f';
+    ctx.lineWidth = 12;
+
+    // Left bank
+    ctx.beginPath();
+    for (let i = 0; i < river.path.length; i++) {
+        const segment = river.path[i];
+        const x = segment.centerX - segment.width / 2;
+        if (i === 0) ctx.moveTo(x, segment.y);
+        else ctx.lineTo(x, segment.y);
+    }
+    ctx.stroke();
+
+    // Right bank
+    ctx.beginPath();
+    for (let i = 0; i < river.path.length; i++) {
+        const segment = river.path[i];
+        const x = segment.centerX + segment.width / 2;
+        if (i === 0) ctx.moveTo(x, segment.y);
+        else ctx.lineTo(x, segment.y);
+    }
+    ctx.stroke();
+
+    // Light grass edge (inner)
+    ctx.strokeStyle = '#3d7a1f';
+    ctx.lineWidth = 6;
+
+    // Left bank inner
+    ctx.beginPath();
+    for (let i = 0; i < river.path.length; i++) {
+        const segment = river.path[i];
+        const x = segment.centerX - segment.width / 2;
+        if (i === 0) ctx.moveTo(x, segment.y);
+        else ctx.lineTo(x, segment.y);
+    }
+    ctx.stroke();
+
+    // Right bank inner
+    ctx.beginPath();
+    for (let i = 0; i < river.path.length; i++) {
+        const segment = river.path[i];
+        const x = segment.centerX + segment.width / 2;
+        if (i === 0) ctx.moveTo(x, segment.y);
+        else ctx.lineTo(x, segment.y);
+    }
+    ctx.stroke();
+
+    // Small grass tufts on banks
+    ctx.fillStyle = '#2d5016';
+    for (let i = 0; i < river.path.length; i += 5) {
+        const segment = river.path[i];
+
+        // Left side
+        const leftX = segment.centerX - segment.width / 2;
+        for (let j = 0; j < 2; j++) {
+            ctx.beginPath();
+            ctx.arc(leftX - 10 - j * 8, segment.y + (i % 3) * 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Right side
+        const rightX = segment.centerX + segment.width / 2;
+        for (let j = 0; j < 2; j++) {
+            ctx.beginPath();
+            ctx.arc(rightX + 10 + j * 8, segment.y + (i % 3) * 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
     // Water waves
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.strokeStyle = player.powerUp === 'ecstasy' ?
+        `hsla(${player.rainbowOffset}, 100%, 70%, 0.5)` :
+        'rgba(255, 255, 255, 0.3)';
     ctx.lineWidth = 2;
+
     for (let i = 0; i < 5; i++) {
         ctx.beginPath();
         const offset = (river.waterY + i * 100) % canvas.height;
-        for (let x = 0; x < canvas.width; x += 20) {
-            const y = offset + Math.sin((x + river.waterY) * 0.02) * 10;
-            if (x === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+
+        for (let j = 0; j < river.path.length; j++) {
+            const segment = river.path[j];
+            if (Math.abs(segment.y - offset) < 50) {
+                const x = segment.centerX + Math.sin((segment.y + river.waterY) * 0.02) * (segment.width * 0.3);
+                if (j === 0) ctx.moveTo(x, segment.y);
+                else ctx.lineTo(x, segment.y);
+            }
         }
         ctx.stroke();
     }
 
+    ctx.restore();
     river.waterY += river.speed;
 }
 
@@ -290,6 +718,79 @@ function drawObstacles() {
             ctx.beginPath();
             ctx.arc(12, -5, 2, 0, Math.PI * 2);
             ctx.fill();
+        } else if (obstacle.type === 'powerup') {
+            // Power-ups
+            obstacle.rotation += 0.05;
+            ctx.rotate(obstacle.rotation);
+
+            if (obstacle.powerUpType === 'ecstasy') {
+                // Rainbow pill
+                const gradient = ctx.createLinearGradient(-15, -15, 15, 15);
+                gradient.addColorStop(0, '#FF00FF');
+                gradient.addColorStop(0.5, '#00FFFF');
+                gradient.addColorStop(1, '#FFFF00');
+                ctx.fillStyle = gradient;
+
+                // Pill shape
+                ctx.beginPath();
+                ctx.arc(-8, 0, 8, Math.PI / 2, -Math.PI / 2);
+                ctx.arc(8, 0, 8, -Math.PI / 2, Math.PI / 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Shine
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.beginPath();
+                ctx.arc(-5, -3, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sparkles
+                ctx.fillStyle = '#FFF';
+                for (let i = 0; i < 3; i++) {
+                    const angle = (Date.now() * 0.005 + i * Math.PI * 2 / 3);
+                    const x = Math.cos(angle) * 18;
+                    const y = Math.sin(angle) * 18;
+                    ctx.fillRect(x - 1, y - 1, 2, 2);
+                }
+            } else if (obstacle.powerUpType === 'coffee') {
+                // Coffee cup
+                ctx.fillStyle = '#6F4E37';
+                ctx.fillRect(-10, -8, 20, 16);
+                ctx.fillStyle = '#8B6F47';
+                ctx.beginPath();
+                ctx.ellipse(0, -8, 10, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Steam
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 2; i++) {
+                    ctx.beginPath();
+                    const offset = i * 6 - 3;
+                    ctx.moveTo(offset, -10);
+                    ctx.bezierCurveTo(offset - 3, -15, offset + 3, -18, offset, -22);
+                    ctx.stroke();
+                }
+            } else if (obstacle.powerUpType === 'beer') {
+                // Beer mug
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(-10, -10, 20, 20);
+
+                // Foam
+                ctx.fillStyle = '#FFFACD';
+                ctx.beginPath();
+                ctx.arc(-7, -10, 5, 0, Math.PI * 2);
+                ctx.arc(0, -12, 5, 0, Math.PI * 2);
+                ctx.arc(7, -10, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Handle
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(13, 0, 6, -Math.PI / 2, Math.PI / 2);
+                ctx.stroke();
+            }
         }
 
         ctx.restore();
@@ -331,12 +832,69 @@ function update(currentTime) {
     player.x += player.velocityX;
     player.rotation = Math.max(-0.3, Math.min(0.3, player.rotation));
 
-    // Keep player in bounds
-    player.x = Math.max(30, Math.min(canvas.width - 30, player.x));
+    // Keep player in river bounds
+    const riverCenter = getRiverCenterAt(player.y);
+    const riverLeft = riverCenter - river.width / 2 + 30;
+    const riverRight = riverCenter + river.width / 2 - 30;
+
+    player.x = Math.max(riverLeft, Math.min(riverRight, player.x));
+
+    // Hit river bank (damage over time)
+    if (player.x <= riverLeft + 5 || player.x >= riverRight - 5) {
+        player.bankCollisionTimer += gameState.deltaTime;
+
+        if (player.bankCollisionTimer >= 0.3) {
+            const damage = 8;
+            const health = hud.damageHealth(damage);
+            player.expression = 'scared';
+            player.expressionTimer = 0.5;
+            soundSystem.playSplash();
+            createSplash(player.x, player.y, 10);
+
+            player.bankCollisionTimer = 0;
+
+            if (health <= 0) {
+                endGame();
+            }
+        }
+    } else {
+        player.bankCollisionTimer = 0;
+    }
+
+    // Update power-up effects
+    if (player.powerUp) {
+        player.powerUpTimer -= gameState.deltaTime;
+        player.rainbowOffset = (player.rainbowOffset + 5) % 360;
+
+        // Update HUD timer
+        const percentage = (player.powerUpTimer / 10) * 100;
+        hud.updatePowerUpTimer(percentage);
+
+        if (player.powerUpTimer <= 0) {
+            player.powerUp = null;
+            player.expression = 'happy';
+            soundSystem.stopTripMusic();
+            hud.hidePowerUp();
+        }
+    }
+
+    // Random expression changes
+    player.expressionTimer -= gameState.deltaTime;
+    if (player.expressionTimer <= 0 && !player.powerUp) {
+        const expressions = ['happy', 'happy', 'surprised', 'crazy'];
+        player.expression = expressions[Math.floor(Math.random() * expressions.length)];
+        player.expressionTimer = Math.random() * 3 + 2;
+    }
 
     // Update river speed (increases over time)
-    river.speed = Math.min(8, 2 + hud.distance * 0.001);
+    const speedMultiplier = player.powerUp === 'coffee' ? 1.5 : 1;
+    river.speed = Math.min(8, 2 + hud.distance * 0.001) * speedMultiplier;
     player.speed = river.speed * 50;
+
+    // Beer effect - wobbly movement
+    if (player.powerUp === 'beer') {
+        player.x += Math.sin(Date.now() * 0.005) * 2;
+    }
 
     // Generate obstacles
     generateObstacle();
@@ -352,11 +910,40 @@ function update(currentTime) {
                 // Duck is friendly - small bonus
                 createSplash(obstacle.x, obstacle.y, 15);
                 soundSystem.playPickup();
+                player.expression = 'happy';
+                player.expressionTimer = 2;
+            } else if (obstacle.type === 'powerup') {
+                // Power-up collected!
+                createSplash(obstacle.x, obstacle.y, 25);
+                soundSystem.playPowerUp();
+
+                player.powerUp = obstacle.powerUpType;
+                player.powerUpTimer = 10; // 10 seconds
+
+                hud.showPowerUp(obstacle.powerUpType);
+
+                if (obstacle.powerUpType === 'ecstasy') {
+                    player.expression = 'trippy';
+                    soundSystem.playTripMusic();
+                } else if (obstacle.powerUpType === 'coffee') {
+                    player.expression = 'crazy';
+                } else if (obstacle.powerUpType === 'beer') {
+                    player.expression = 'happy';
+                }
             } else {
                 // Hit obstacle
                 createSplash(obstacle.x, obstacle.y, 20);
                 soundSystem.playHit();
                 soundSystem.playSplash();
+
+                // Different expressions based on obstacle
+                if (obstacle.type === 'rock') {
+                    player.expression = 'bugged'; // Bugged out eyes for rock!
+                    player.expressionTimer = 1.5;
+                } else {
+                    player.expression = 'scared';
+                    player.expressionTimer = 1;
+                }
 
                 const damage = obstacle.type === 'rock' ? 20 : 10;
                 const health = hud.damageHealth(damage);
@@ -418,15 +1005,25 @@ function startGame() {
     gameState.gameOver = false;
     gameState.lastTime = 0;
 
-    player.x = canvas.width / 2;
+    // Start player in center of river at their Y position
     player.y = canvas.height * 0.7;
+    player.x = getRiverCenterAt(player.y);
     player.velocityX = 0;
     player.rotation = 0;
+    player.expression = 'happy';
+    player.expressionTimer = 3;
+    player.powerUp = null;
+    player.powerUpTimer = 0;
+    player.rainbowOffset = 0;
+    player.bankCollisionTimer = 0;
 
     river.speed = 2;
     river.obstacles = [];
     river.waterY = 0;
     particles.length = 0;
+
+    // Initialize winding river (sets pathOffset internally)
+    initRiverPath();
 
     hud.reset();
 
@@ -442,6 +1039,7 @@ function endGame() {
     gameState.gameOver = true;
 
     soundSystem.stopAmbient();
+    soundSystem.stopTripMusic();
     soundSystem.playGameOver();
 
     document.getElementById('finalDistance').textContent = hud.distance;
@@ -461,3 +1059,6 @@ document.addEventListener('touchend', (e) => {
     }
     lastTouchEnd = now;
 }, false);
+
+// Initialize river on load
+initRiverPath();

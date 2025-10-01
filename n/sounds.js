@@ -5,6 +5,7 @@ class SoundSystem {
         this.audioContext = null;
         this.ambientSound = null;
         this.masterGain = null;
+        this.tripMusic = null;
         this.init();
     }
 
@@ -244,6 +245,153 @@ class SoundSystem {
 
         noise.start(now);
         noise.stop(now + 0.3);
+    }
+
+    // Power-up collected sound
+    playPowerUp() {
+        if (!this.audioContext) return;
+
+        const now = this.audioContext.currentTime;
+
+        // Magical ascending arpeggio
+        const notes = [
+            { freq: 523.25, time: 0 },      // C5
+            { freq: 659.25, time: 0.08 },   // E5
+            { freq: 783.99, time: 0.16 },   // G5
+            { freq: 1046.50, time: 0.24 }   // C6
+        ];
+
+        notes.forEach(note => {
+            const osc = this.createOscillator(note.freq, 'sine');
+            const gain = this.audioContext.createGain();
+
+            const startTime = now + note.time;
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
+
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(startTime);
+            osc.stop(startTime + 0.4);
+        });
+
+        // Sparkle sound
+        for (let i = 0; i < 5; i++) {
+            const freq = 2000 + Math.random() * 1000;
+            const osc = this.createOscillator(freq, 'sine');
+            const gain = this.audioContext.createGain();
+            const startTime = now + i * 0.05;
+
+            gain.gain.setValueAtTime(0.1, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(startTime);
+            osc.stop(startTime + 0.2);
+        }
+    }
+
+    // Trippy music for ecstasy mode
+    playTripMusic() {
+        if (!this.audioContext || this.tripMusic) return;
+
+        const now = this.audioContext.currentTime;
+
+        // Bass line
+        const bassOsc = this.createOscillator(65.41, 'sawtooth'); // C2
+        const bassGain = this.audioContext.createGain();
+        bassGain.gain.value = 0.15;
+
+        const bassLFO = this.createOscillator(0.5, 'sine');
+        const bassLFOGain = this.audioContext.createGain();
+        bassLFOGain.gain.value = 10;
+
+        bassLFO.connect(bassLFOGain);
+        bassLFOGain.connect(bassOsc.frequency);
+        bassOsc.connect(bassGain);
+        bassGain.connect(this.masterGain);
+
+        // Lead synth with vibrato
+        const leadOsc = this.createOscillator(523.25, 'triangle'); // C5
+        const leadGain = this.audioContext.createGain();
+        leadGain.gain.value = 0.1;
+
+        const vibrato = this.createOscillator(6, 'sine');
+        const vibratoGain = this.audioContext.createGain();
+        vibratoGain.gain.value = 15;
+
+        vibrato.connect(vibratoGain);
+        vibratoGain.connect(leadOsc.frequency);
+        leadOsc.connect(leadGain);
+        leadGain.connect(this.masterGain);
+
+        // Pad synth
+        const padOsc = this.createOscillator(261.63, 'sine'); // C4
+        const padGain = this.audioContext.createGain();
+        padGain.gain.value = 0.08;
+
+        padOsc.connect(padGain);
+        padGain.connect(this.masterGain);
+
+        // Random bleeps
+        const bleepInterval = setInterval(() => {
+            if (!this.tripMusic) {
+                clearInterval(bleepInterval);
+                return;
+            }
+
+            const freq = 400 + Math.random() * 800;
+            const osc = this.createOscillator(freq, 'square');
+            const gain = this.audioContext.createGain();
+            const now = this.audioContext.currentTime;
+
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }, 500);
+
+        bassOsc.start(now);
+        bassLFO.start(now);
+        leadOsc.start(now);
+        vibrato.start(now);
+        padOsc.start(now);
+
+        this.tripMusic = {
+            bassOsc, bassLFO, leadOsc, vibrato, padOsc,
+            bassGain, leadGain, padGain, bleepInterval
+        };
+    }
+
+    // Stop trippy music
+    stopTripMusic() {
+        if (!this.tripMusic) return;
+
+        const now = this.audioContext.currentTime;
+
+        // Fade out
+        this.tripMusic.bassGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        this.tripMusic.leadGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        this.tripMusic.padGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+        setTimeout(() => {
+            if (this.tripMusic) {
+                this.tripMusic.bassOsc.stop();
+                this.tripMusic.bassLFO.stop();
+                this.tripMusic.leadOsc.stop();
+                this.tripMusic.vibrato.stop();
+                this.tripMusic.padOsc.stop();
+                clearInterval(this.tripMusic.bleepInterval);
+                this.tripMusic = null;
+            }
+        }, 600);
     }
 }
 

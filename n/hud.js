@@ -5,6 +5,9 @@ class HUD {
         this.distanceElement = document.getElementById('distance');
         this.speedElement = document.getElementById('speed');
         this.healthFillElement = document.getElementById('health-fill');
+        this.powerupIndicator = document.getElementById('powerup-indicator');
+        this.powerupText = document.getElementById('powerup-text');
+        this.powerupTimerFill = document.getElementById('powerup-timer-fill');
 
         this.distance = 0;
         this.speed = 0;
@@ -60,6 +63,34 @@ class HUD {
 
     getHealth() {
         return this.health;
+    }
+
+    showPowerUp(type) {
+        const names = {
+            'ecstasy': '🌈 TRIP MODE! 🌈',
+            'coffee': '☕ TURBO! ☕',
+            'beer': '🍺 PIJANY! 🍺'
+        };
+
+        this.powerupText.textContent = names[type] || 'POWER UP!';
+        this.powerupIndicator.classList.remove('hidden');
+
+        // Set color based on type
+        if (type === 'ecstasy') {
+            this.powerupIndicator.style.background = 'linear-gradient(135deg, #FF00FF, #00FFFF, #FFFF00)';
+        } else if (type === 'coffee') {
+            this.powerupIndicator.style.background = 'rgba(139, 69, 19, 0.9)';
+        } else if (type === 'beer') {
+            this.powerupIndicator.style.background = 'rgba(255, 215, 0, 0.9)';
+        }
+    }
+
+    updatePowerUpTimer(percentage) {
+        this.powerupTimerFill.style.width = `${percentage}%`;
+    }
+
+    hidePowerUp() {
+        this.powerupIndicator.classList.add('hidden');
     }
 }
 
