@@ -1,0 +1,672 @@
+[
+  {
+    "id": 1,
+    "title": "Babka z olejem Agnieszki",
+    "category": "Ciasta",
+    "prepTime": 40,
+    "servings": 6,
+    "ingredients": [
+      { "amount": "3", "name": "jajka" },
+      { "amount": "1 szklanka", "name": "mąki" },
+      { "amount": "1 łyżeczka", "name": "proszku do pieczenia" },
+      { "amount": "3/4 szklanki", "name": "cukru" },
+      { "amount": "1 łyżeczka", "name": "cukru waniliowego" },
+      { "amount": "10 łyżek", "name": "oleju" }
+    ],
+    "instructions": [
+      "Wymieszać składniki suche: mąkę, cukier, cukier waniliowy i proszek do pieczenia.",
+      "Dodać jajka i olej, wymieszać dokładnie.",
+      "Przełożyć ciasto do formy.",
+      "Piec w temperaturze 180°C przez około 40 minut."
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Babka z margaryną",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "4", "name": "jajka" },
+      { "amount": "1 szklanka", "name": "cukru" },
+      { "amount": "1 opakowanie", "name": "cukru waniliowego" },
+      { "amount": "1.5 szklanki", "name": "mąki (w tym 1 łyżka mąki ziemniaczanej)" },
+      { "amount": "1 łyżeczka", "name": "proszku do pieczenia" },
+      { "amount": "1 kostka", "name": "margaryny (roztopionej)" }
+    ],
+    "instructions": [
+      "Margarynę roztopić i ostudzić.",
+      "Jajka ubić z cukrem i cukrem waniliowym.",
+      "Dodać mąkę, proszek do pieczenia i margarynę, wymieszać.",
+      "Przełożyć do formy.",
+      "Piec w temperaturze 180°C przez około 50-60 minut."
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Biszkopty",
+    "category": "Ciastka",
+    "prepTime": 30,
+    "servings": 24,
+    "ingredients": [
+      { "amount": "4", "name": "jajka" },
+      { "amount": "1 szklanka", "name": "mąki" },
+      { "amount": "1 łyżeczka", "name": "proszku do pieczenia" },
+      { "amount": "3/4 szklanki", "name": "cukru" },
+      { "amount": "1 łyżka", "name": "wody" },
+      { "amount": "2 łyżki", "name": "kakao" }
+    ],
+    "instructions": [
+      "Białka ubić, dodać cukier.",
+      "Dodać żółtka, mąkę i proszek do pieczenia.",
+      "Wlać wodę, delikatnie wymieszać.",
+      "Za pomocą rękawa cukierniczego wyłożyć ciasto na blachę.",
+      "Piec w temperaturze 180°C przez około 15 minut."
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Ciasto miodowe",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "3 szklanki", "name": "mąki" },
+      { "amount": "3/4 szklanki", "name": "cukru pudru" },
+      { "amount": "3 duże łyżki", "name": "miodu" },
+      { "amount": "2", "name": "jajka" },
+      { "amount": "1 łyżeczka", "name": "sody" },
+      { "amount": "10 dkg", "name": "masła" }
+    ],
+    "instructions": [
+      "Mąkę i cukier puder wsypać do miski.",
+      "Dodać miód i masło, wyrobić.",
+      "Dodać jajka i sodę, wymieszać dokładnie.",
+      "Piec w temperaturze 180°C około 40-45 minut.",
+      "Wierzch ciasta można polać polewą lub posypać cukrem pudrem."
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Ciasto z dżemem",
+    "category": "Ciasta",
+    "prepTime": 50,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "2 szklanki", "name": "cukru" },
+      { "amount": "4", "name": "żółtka" },
+      { "amount": "2 łyżki", "name": "dżemu" },
+      { "amount": "2 łyżki", "name": "mleka" },
+      { "amount": "2 szklanki", "name": "mąki" },
+      { "amount": "2 łyżeczki", "name": "proszku do pieczenia" }
+    ],
+    "instructions": [
+      "Utrzeć żółtka z cukrem.",
+      "Dodać dżem i mleko, wymieszać.",
+      "Dodać mąkę z proszkiem do pieczenia, wyrobić ciasto.",
+      "Przełożyć do formy.",
+      "Piec w temperaturze 180°C przez około 40 minut."
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Ciasto kruche",
+    "category": "Ciasta",
+    "prepTime": 40,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "3 szklanki", "name": "mąki" },
+      { "amount": "", "name": "proszek do pieczenia na 1/2 kg mąki" },
+      { "amount": "1/2 szklanki", "name": "kwaśnej śmietany" },
+      { "amount": "1 kostka", "name": "masła" },
+      { "amount": "3 łyżki", "name": "cukru pudru" },
+      { "amount": "6", "name": "żółtek" }
+    ],
+    "instructions": [
+      "Mąkę wymieszać z proszkiem do pieczenia.",
+      "Dodać pokrojone masło, cukier puder i żółtka.",
+      "Dodać śmietanę i zagnieść ciasto.",
+      "Rozwałkować, wyłożyć do formy.",
+      "Piec w temperaturze 180°C przez około 25-30 minut."
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Ciasto drożdżowe dla zapracowanych",
+    "category": "Ciasta",
+    "prepTime": 50,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "1", "name": "jajko" },
+      { "amount": "25 dkg", "name": "cukru" },
+      { "amount": "", "name": "cukier waniliowy" },
+      { "amount": "", "name": "kostka masła lub margaryny" },
+      { "amount": "5 dkg", "name": "drożdży" },
+      { "amount": "60 dkg", "name": "mąki" },
+      { "amount": "", "name": "szklanka mleka" },
+      { "amount": "5 dkg", "name": "rodzynek" }
+    ],
+    "instructions": [
+      "Mąkę, drożdże i tłuszcz dodać do miski i wlać mleko.",
+      "Do mąki z tłuszczem dodać jajo, drożdże, cukier waniliowy, resztę mleka i rodzynki.",
+      "Ciasto wymieszać i pozostawić w ciepłym miejscu do wyrośnięcia.",
+      "Gdy wyrośnie, włożyć do piekarnika nagrzanego do temperatury 180°C.",
+      "Piec 30-40 minut."
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Ciastka z sera I",
+    "category": "Ciastka",
+    "prepTime": 40,
+    "servings": 24,
+    "ingredients": [
+      { "amount": "25 dkg", "name": "margaryny (masła)" },
+      { "amount": "", "name": "biały ser" },
+      { "amount": "", "name": "mąka" },
+      { "amount": "", "name": "cukier" },
+      { "amount": "", "name": "jajko" }
+    ],
+    "instructions": [
+      "Margarynę, mąkę i ser połączyć.",
+      "Lekko schłodzić i dogniatać.",
+      "Następnie rozwałkować i cienko wykroić w krążki.",
+      "Posypać cukrem i upiec na złoto."
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Ciastka z sera II",
+    "category": "Ciastka",
+    "prepTime": 40,
+    "servings": 24,
+    "ingredients": [
+      { "amount": "25 dkg", "name": "sera" },
+      { "amount": "", "name": "mąka" },
+      { "amount": "", "name": "masło" },
+      { "amount": "", "name": "cukier" }
+    ],
+    "instructions": [
+      "Przyprawy grubym cukrem.",
+      "Ser, mąkę i masło wymieszać razem.",
+      "Schłodzić, rozwałkować i wykroić ciastka.",
+      "Posypać cukrem i upiec do zrumienienia."
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Dżem z czarnych porzeczek",
+    "category": "Przetwory",
+    "prepTime": 60,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "1.5 kg", "name": "czarnych porzeczek" },
+      { "amount": "1 do 1.10 kg", "name": "cukru" }
+    ],
+    "instructions": [
+      "Porzeczki umyć dokładnie i opłukać.",
+      "Wsypać do emaliowanego garnka i ogrzewać.",
+      "Gotować kilka minut, wsypać cukier i gotować jeszcze około 25 minut.",
+      "Zebrać piankę tworzącą się na wierzchu naczynia.",
+      "Wkładać do czystych słoików i gotowe."
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Ciasto jogurtowe ze śliwkami",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "2.5 szkl", "name": "mąki" },
+      { "amount": "3/4 szkl", "name": "cukru" },
+      { "amount": "2", "name": "jajka" },
+      { "amount": "0.5 szkl", "name": "oleju" },
+      { "amount": "1 szkl", "name": "maślanki" },
+      { "amount": "3 łyżeczki", "name": "proszku do pieczenia" },
+      { "amount": "1", "name": "cukier waniliowy" }
+    ],
+    "instructions": [
+      "Wymieszać składniki suche: mąkę, cukier, proszek do pieczenia i cukier waniliowy.",
+      "Dodać jajka, olej i maślankę, dokładnie wymieszać.",
+      "Przelać ciasto do formy i ułożyć śliwki na wierzchu.",
+      "Piec w temperaturze 180°C przez około 50 minut."
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Ciasto Izaura/Murzynek",
+    "category": "Ciasta",
+    "prepTime": 70,
+    "servings": 10,
+    "ingredients": [
+      { "amount": "3/4 szkl", "name": "cukru" },
+      { "amount": "3/4 szkl", "name": "mąki" },
+      { "amount": "3", "name": "jajka" },
+      { "amount": "szczypta", "name": "soli" },
+      { "amount": "1 łyżeczka", "name": "proszku do pieczenia" },
+      { "amount": "1 szkl", "name": "sera" },
+      { "amount": "1/2", "name": "cukru" },
+      { "amount": "1", "name": "jajko" },
+      { "amount": "3 łyżki", "name": "mąki" }
+    ],
+    "instructions": [
+      "Po przygotowaniu ciasta podstawowego, podpiec je wstępnie.",
+      "Przygotować masę serową: wymieszać ser z cukrem, dodać jajko i mąkę.",
+      "Wyłożyć masę serową na podpieczone ciasto.",
+      "Piec w temperaturze 180°C przez około 50 minut."
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Ciasto marchewkowe",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "2 łyżeczki", "name": "cynamonu" },
+      { "amount": "szczypta", "name": "soli" },
+      { "amount": "1 łyżeczka", "name": "sody" },
+      { "amount": "1 łyżeczka", "name": "proszku do pieczenia" },
+      { "amount": "1/2 łyżeczki", "name": "cukru" },
+      { "amount": "200 g", "name": "migdałów drobno zmielonych" },
+      { "amount": "100 g", "name": "płatków owsianych" },
+      { "amount": "4", "name": "jaja" },
+      { "amount": "270 g", "name": "startej marchewki" }
+    ],
+    "instructions": [
+      "Wymieszać składniki suche: mąkę, cynamon, sól, sodę i proszek do pieczenia.",
+      "Dodać migdały, płatki owsiane i cukier.",
+      "W osobnej misce ubić jajka i dodać startą marchew.",
+      "Połączyć wszystkie składniki i dokładnie wymieszać.",
+      "Piec w temperaturze 180°C."
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Ciasto cytrynowe",
+    "category": "Ciasta",
+    "prepTime": 50,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "2 szkl", "name": "mąki tortowej" },
+      { "amount": "4 łyżki", "name": "śmietany aromatycznej" },
+      { "amount": "4", "name": "jajka" },
+      { "amount": "3/4 szkl.", "name": "cukru" },
+      { "amount": "3/4 szkl.", "name": "oleju" },
+      { "amount": "1/2 szkl.", "name": "soku cytrynowego" },
+      { "amount": "", "name": "sok z 1 cytryny + skórka" },
+      { "amount": "2 łyżeczki", "name": "proszku do pieczenia" }
+    ],
+    "instructions": [
+      "Wymieszać mąkę z proszkiem do pieczenia.",
+      "Ubić jajka z cukrem.",
+      "Dodać olej, sok cytrynowy i skórkę, wymieszać.",
+      "Dodać mąkę i śmietanę, dokładnie wymieszać.",
+      "Piec w temperaturze 180°C przez około 50 minut."
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Kawa",
+    "category": "Napoje",
+    "prepTime": 5,
+    "servings": 2,
+    "ingredients": [
+      { "amount": "0,5 l", "name": "mleka" },
+      { "amount": "4 łyżki", "name": "kawy" }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 16,
+    "title": "Chleb domowy",
+    "category": "Pieczywo",
+    "prepTime": 120,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "", "name": "mąka" },
+      { "amount": "1 op.", "name": "drożdży" },
+      { "amount": "1 łyżka", "name": "soli" },
+      { "amount": "1 łyżka", "name": "cukru" },
+      { "amount": "1 łyżka", "name": "smalcu" },
+      { "amount": "1 łyżka", "name": "oliwy" },
+      { "amount": "1 łyżka", "name": "oleju" },
+      { "amount": "", "name": "woda" }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 17,
+    "title": "Kruszonka do ciasta drożdżowego",
+    "category": "Ciasta",
+    "prepTime": 10,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "1/4 kostki", "name": "masła" },
+      { "amount": "2-3 łyżki", "name": "mąki" },
+      { "amount": "1/4 szklanki", "name": "cukru" }
+    ],
+    "instructions": [
+      "Kruszonka musi być trochę sucha."
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Knedle",
+    "category": "Dania główne",
+    "prepTime": 30,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "", "name": "gotowane ziemniaki" },
+      { "amount": "", "name": "mąka tortowa" },
+      { "amount": "", "name": "żółtko" },
+      { "amount": "pół łyżki", "name": "masła" }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 19,
+    "title": "Kluski serowe kłodzkie Giseli",
+    "category": "Dania główne",
+    "prepTime": 40,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "1/2 kg", "name": "sera białego" },
+      { "amount": "2", "name": "jajka" },
+      { "amount": "3/4 szklanki", "name": "mąki" },
+      { "amount": "2 łyżki", "name": "mąki tortowej" },
+      { "amount": "3 łyżki", "name": "cukru" },
+      { "amount": "trochę", "name": "soli" }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 20,
+    "title": "Kalarepka z marchewką",
+    "category": "Dania główne",
+    "prepTime": 30,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "", "name": "kalarepka" },
+      { "amount": "", "name": "marchewka" },
+      { "amount": "", "name": "jajko" },
+      { "amount": "", "name": "sól" },
+      { "amount": "", "name": "przyprawa" },
+      { "amount": "", "name": "cukier" },
+      { "amount": "", "name": "mąka" }
+    ],
+    "instructions": [
+      "Obsmażyć kalarepkę i marchewkę utarte na grubej tarce.",
+      "Dodać jajko, osolić, doprawić i dodać cukier.",
+      "Uformować kotlety.",
+      "Smażyć ok. 15 min.",
+      "Pod koniec ponownie oprószyć mąką i zasmażyć.",
+      "Podać do ziemniaków i mięsa."
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Murzynek",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "1 1/2 szklanki", "name": "cukru" },
+      { "amount": "1 opakowanie", "name": "cukru waniliowego" },
+      { "amount": "4 pełne duże łyżki", "name": "kakao" },
+      { "amount": "3/4-1 szklanki", "name": "wody" },
+      { "amount": "4", "name": "jajka" },
+      { "amount": "2 łyżki", "name": "mąki tortowej" },
+      { "amount": "1 łyżka", "name": "proszku do pieczenia" }
+    ],
+    "instructions": [
+      "Wymieszać składniki (cukier, cukier waniliowy, kakao, woda) razem na wolnym ogniu i chwilę pogotować.",
+      "Po ostudzeniu dodać 4 żółtka, 2 łyżki mąki tortowej, 1 łyżkę proszku do pieczenia.",
+      "Dodać pianę z 4 białek.",
+      "Piec ok. 40-45 min.",
+      "Polać polewą z białej śmietany z czekoladą."
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Masa do wafli",
+    "category": "Desery",
+    "prepTime": 15,
+    "servings": 10,
+    "ingredients": [
+      { "amount": "1 kostka", "name": "margaryny (masła)" },
+      { "amount": "2 szklanki", "name": "odtłuszczonego mleka w proszku" },
+      { "amount": "1 szklanka", "name": "mąki" },
+      { "amount": "15 łyżek", "name": "cukru" },
+      { "amount": "2", "name": "żółtka" }
+    ],
+    "instructions": [
+      "Wszystko wymieszać i podgrzać do temp. 60°C.",
+      "Ciepłą masą polać wafle."
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Pizza",
+    "category": "Dania główne",
+    "prepTime": 45,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "2 szklanki", "name": "mąki" },
+      { "amount": "1", "name": "żółtko" },
+      { "amount": "2 dag", "name": "drożdży" },
+      { "amount": "3/4 szklanki", "name": "wody" },
+      { "amount": "1 łyżka", "name": "oliwy" },
+      { "amount": "1 łyżeczka", "name": "cukru" },
+      { "amount": "szczypta", "name": "soli" },
+      { "amount": "", "name": "dodatki: sos pomidorowy" },
+      { "amount": "", "name": "ser" },
+      { "amount": "", "name": "pieczarki" },
+      { "amount": "", "name": "boczek" },
+      { "amount": "", "name": "szpinak" }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 24,
+    "title": "Racuszki na proszku do pieczenia",
+    "category": "Desery",
+    "prepTime": 20,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "1,5 szkl", "name": "mąki" },
+      { "amount": "300 ml", "name": "mleka" },
+      { "amount": "2 szt.", "name": "jajka" },
+      { "amount": "3 łyżeczki", "name": "proszku do pieczenia" }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 25,
+    "title": "Szarlotka - ciasto kruche",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "3 szkl.", "name": "mąki (tortowej)" },
+      { "amount": "4", "name": "żółtka" },
+      { "amount": "3/4 kostki", "name": "masła lub margaryny" },
+      { "amount": "1/2 szkl.", "name": "kwaśnej śmietany" },
+      { "amount": "1/2 szkl.", "name": "cukru" },
+      { "amount": "", "name": "proszek do pieczenia na 0,5 kg" }
+    ],
+    "instructions": [
+      "Wszystko posiekać nożem, chwilę zagnieść, schłodzić.",
+      "Wstawić do nagrzanego piekarnika."
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Szybka szarlotka",
+    "category": "Ciasta",
+    "prepTime": 90,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "60 dag", "name": "jabłek" },
+      { "amount": "25 dag", "name": "mąki tortowej" },
+      { "amount": "1 łyżeczka", "name": "proszku do pieczenia" },
+      { "amount": "20 dag", "name": "cukru pudru" },
+      { "amount": "", "name": "cukier waniliowy" },
+      { "amount": "3", "name": "jajka" },
+      { "amount": "1/2 kostki", "name": "masła lub margaryny" },
+      { "amount": "szczypta", "name": "soli" }
+    ],
+    "instructions": [
+      "Jabłka obrać w cienkie plastry.",
+      "Płaską blachę do tostownicy posypać mąką.",
+      "Ułożyć ciasto, posypać jabłkami.",
+      "Posypać tartymi herbatnikami.",
+      "Wstawić do nagrzanego piekarnika.",
+      "Piec na średnim ogniu (ponad 1h)."
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Sernik gotowany",
+    "category": "Ciasta",
+    "prepTime": 30,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "1 kg", "name": "sera śmietankowego w kostce" },
+      { "amount": "1 kostka", "name": "masła" },
+      { "amount": "3", "name": "jajka" },
+      { "amount": "1 szkl.", "name": "cukru" },
+      { "amount": "", "name": "cukier waniliowy" },
+      { "amount": "0,5 l", "name": "budyń (rozrobić w 6 małych łyżkach mleka)" }
+    ],
+    "instructions": [
+      "Masło i cukier rozpuścić i dodać ser, jajka.",
+      "Gotować ok. 10 min, dodać budyń i bakalie.",
+      "Wlać do formy wyłożonej herbatnikami."
+    ]
+  },
+  {
+    "id": 28,
+    "title": "Skubaniec",
+    "category": "Ciasta",
+    "prepTime": 45,
+    "servings": 10,
+    "ingredients": [
+      { "amount": "4 szkl.", "name": "mąki tortowej" },
+      { "amount": "2 łyżki", "name": "proszku do pieczenia" },
+      { "amount": "1 szkl.", "name": "cukru" },
+      { "amount": "1 1/2 kostki", "name": "masła" },
+      { "amount": "6", "name": "żółtek" },
+      { "amount": "3 łyżki", "name": "śmietany" }
+    ],
+    "instructions": [
+      "Zmieszać z serem.",
+      "Dodać pianę z białek.",
+      "Dodać owoce."
+    ]
+  },
+  {
+    "id": 29,
+    "title": "Sernik z rodzynkami",
+    "category": "Ciasta",
+    "prepTime": 60,
+    "servings": 10,
+    "ingredients": [
+      { "amount": "1 kg", "name": "sera" },
+      { "amount": "4", "name": "żółtka" },
+      { "amount": "1", "name": "jajko" },
+      { "amount": "3/4 szkl.", "name": "cukru" },
+      { "amount": "1/2 szkl.", "name": "oleju" },
+      { "amount": "2 szkl.", "name": "mleka" },
+      { "amount": "2", "name": "budynie śmietankowe" }
+    ],
+    "instructions": [
+      "Utrzeć żółtka i jajko z cukrem.",
+      "Dodać ser i olej oraz budynie rozpuszczone w mleku.",
+      "Wlać na blachę z biszkoptami.",
+      "Pianę z białek ubić, nałożyć na podpieczony sernik i posypać wiórkami kokosowymi.",
+      "Piec dłużej."
+    ]
+  },
+  {
+    "id": 30,
+    "title": "Śledź w sosie chrzanowym",
+    "category": "Przystawki",
+    "prepTime": 30,
+    "servings": 4,
+    "ingredients": [
+      { "amount": "8", "name": "matjasów" },
+      { "amount": "1", "name": "jajko" },
+      { "amount": "1", "name": "śmietana" },
+      { "amount": "", "name": "pietruszka" },
+      { "amount": "2 łyżki", "name": "rodzynek" },
+      { "amount": "2 łyżki", "name": "tartego chrzanu" },
+      { "amount": "", "name": "sok z 1/2 cytryny" },
+      { "amount": "", "name": "sól" },
+      { "amount": "", "name": "biały pieprz" },
+      { "amount": "", "name": "cukier" },
+      { "amount": "", "name": "plastry cytryny do dekoracji" }
+    ],
+    "instructions": [
+      "Ugotowane jajko drobno posiekać.",
+      "Namoczone śledzie pokroić.",
+      "Natkę pietruszki posiekać, a część zostawić do dekoracji.",
+      "Śmietanę wymieszać z chrzanem, jajkiem i natką.",
+      "Doprawić solą, pieprzem, cukrem i sokiem z cytryny.",
+      "Dodać osączone rodzynki."
+    ]
+  },
+  {
+    "id": 31,
+    "title": "Sałatka ryżowa po meksykańsku",
+    "category": "Przystawki",
+    "prepTime": 25,
+    "servings": 6,
+    "ingredients": [
+      { "amount": "1 szkl.", "name": "ryżu" },
+      { "amount": "1 puszka", "name": "kukurydzy" },
+      { "amount": "4-5", "name": "parówek" },
+      { "amount": "1 średnia", "name": "papryka" },
+      { "amount": "3", "name": "pomidory" },
+      { "amount": "5", "name": "jajek" },
+      { "amount": "2-3 łyżki", "name": "majonezu" },
+      { "amount": "", "name": "natka pietruszki" },
+      { "amount": "", "name": "sól" },
+      { "amount": "", "name": "pieprz" },
+      { "amount": "", "name": "cukier" }
+    ],
+    "instructions": [
+      "Ryż ugotować i ostudzić.",
+      "Parówki pokroić w talarki, pomidory i papryki w kostkę.",
+      "Sos rozetrzeć z solą, dodać olej, oliwę, sok z cytryny i natkę.",
+      "Wszystko wymieszać i schłodzić."
+    ]
+  },
+  {
+    "id": 32,
+    "title": "Sałatka imprezowa",
+    "category": "Przystawki",
+    "prepTime": 40,
+    "servings": 8,
+    "ingredients": [
+      { "amount": "30 dkg", "name": "chudej pieczeni wędzonej" },
+      { "amount": "2 pęczki", "name": "szczypiorku" },
+      { "amount": "15 dag", "name": "marchewki" },
+      { "amount": "40 dkg", "name": "pietruszki" },
+      { "amount": "20 dkg", "name": "selera" },
+      { "amount": "1 szklanka", "name": "groszku zielonego" },
+      { "amount": "1", "name": "jabłko" },
+      { "amount": "3", "name": "jajka" },
+      { "amount": "4 łyżki", "name": "drobno posiekanych grzybów" },
+      { "amount": "1 szkl.", "name": "sosu majonezowego" },
+      { "amount": "2 łyżki", "name": "musztardy" },
+      { "amount": "", "name": "szczypiorek" },
+      { "amount": "", "name": "natka pietruszki" },
+      { "amount": "", "name": "sól" },
+      { "amount": "", "name": "pieprz" },
+      { "amount": "", "name": "cukier" }
+    ],
+    "instructions": []
+  }
+]
